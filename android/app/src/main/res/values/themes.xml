@@ -1,0 +1,5 @@
+<resources>
+    <style name="Theme.CommunityOS" parent="Theme.Material3.DayNight.NoActionBar">
+        <!-- Custom application styles can go here -->
+    </style>
+</resources>

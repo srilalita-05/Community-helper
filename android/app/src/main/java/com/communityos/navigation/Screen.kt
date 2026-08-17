@@ -1,0 +1,28 @@
+package com.communityos.navigation
+
+sealed class Screen(val route: String) {
+    // Auth Flow
+    object Splash : Screen("splash")
+    object Onboarding : Screen("onboarding")
+    object Login : Screen("login")
+    object OtpVerification : Screen("otp_verification/{phone}") {
+        fun createRoute(phone: String) = "otp_verification/$phone"
+    }
+    object Registration : Screen("registration")
+    object CommunitySelection : Screen("community_selection")
+    object FlatVerification : Screen("flat_verification")
+
+    // Dashboards
+    object ResidentDashboard : Screen("resident_dashboard")
+    object AdminDashboard : Screen("admin_dashboard")
+    object SecurityDashboard : Screen("security_dashboard")
+
+    // Sub-features / Details (Can be launched from dashboards)
+    object VisitorDetails : Screen("visitor_details/{visitorId}") {
+        fun createRoute(visitorId: String) = "visitor_details/$visitorId"
+    }
+    object CreateComplaint : Screen("create_complaint")
+    object ClubDetails : Screen("club_details/{clubId}") {
+        fun createRoute(clubId: String) = "club_details/$clubId"
+    }
+}
