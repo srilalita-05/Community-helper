@@ -12,7 +12,7 @@
 
 ## 📌 Executive Summary & Vision
 
-**Community OS** is a digital ecosystem engineered for modern residential gated communities, apartment complexes, villas, and housing societies. It bridges the gap between **society administration**, **guard room security operations**, **social engagement**, and **local resident services**.
+**Community OS** is an all-in-one digital ecosystem engineered for modern residential gated communities, apartment complexes, villas, and housing societies. It bridges the gap between **society administration**, **guard room security operations**, **social engagement**, and **local resident services**.
 
 Rather than serving solely as a maintenance ledger or visitor tracker, **Community OS** connects residents, enables instant emergency assistance, facilitates local skill-sharing and marketplaces, and simplifies daily apartment living.
 
@@ -50,41 +50,28 @@ The platform enforces **Role-Based Access Control (RBAC)** across three primary 
 
 The project adopts **Android Clean Architecture** with **MVVM/MVI design pattern**, single-activity Jetpack Compose architecture, and unidirectional data flow (UDF).
 
-```
-                            ┌─────────────────────────────────┐
-                            │    UI Layer (Jetpack Compose)   │
-                            │   Screens, Components, Themes   │
-                            └────────────────┬────────────────┘
-                                             │  Sends Events / Receives State
-                                             ▼
-                            ┌─────────────────────────────────┐
-                            │    ViewModel (StateFlow, MVI)   │
-                            └────────────────┬────────────────┘
-                                             │  Executes Business Logic
-                                             ▼
-                            ┌─────────────────────────────────┐
-                            │     Domain Layer (UseCases)     │
-                            └────────────────┬────────────────┘
-                                             │  Fetches / Saves Data
-                                             ▼
-                            ┌─────────────────────────────────┐
-                            │   Repository Layer (Contracts)  │
-                            └────────────────┬────────────────┘
-                                             │
-                       ┌─────────────────────┴─────────────────────┐
-                       ▼                                           ▼
-         ┌───────────────────────────┐               ┌───────────────────────────┐
-         │     Local Data Source     │               │    Remote Data Source     │
-         │      (Room Database)      │               │     (Retrofit / REST)     │
-         └───────────────────────────┘               └───────────────────────────┘
+```mermaid
+graph TD
+    UI["📱 UI Layer (Jetpack Compose)<br/>Screens, Components, Themes"]
+    VM["⚙️ ViewModel Layer (StateFlow, MVI)<br/>State Management & Events"]
+    Domain["🧩 Domain Layer (UseCases)<br/>Business Logic & Interactors"]
+    Repo["📦 Repository Layer (Contracts)<br/>Data Abstraction"]
+    Local["💾 Local Data Source<br/>(Room Database)"]
+    Remote["🌐 Remote Data Source<br/>(Retrofit / REST API)"]
+
+    UI -->|Sends Events / Observes State| VM
+    VM -->|Executes Business Logic| Domain
+    Domain -->|Fetches & Saves Data| Repo
+    Repo --> Local
+    Repo --> Remote
 ```
 
 ### Technical Stack Details:
 
-- **Language:** [Kotlin 1.9.22](file:///d:/Projects/community%20helper/android/gradle/libs.versions.toml) (Target SDK 34, Min SDK 26, JVM 17)
-- **UI Framework:** [Jetpack Compose](file:///d:/Projects/community%20helper/android/app/build.gradle.kts) with Material 3 Design Tokens, Custom Typography, Shapes, and Colors.
-- **Dependency Injection:** [Dagger Hilt 2.50](file:///d:/Projects/community%20helper/android/app/src/main/java/com/communityos/authentication/di/AuthModule.kt) with KSP (`@HiltAndroidApp`, `@HiltViewModel`, `@AndroidEntryPoint`, `@Module`, `@InstallIn`).
-- **Navigation:** [Jetpack Compose Navigation](file:///d:/Projects/community%20helper/android/app/src/main/java/com/communityos/navigation/AppNavigation.kt) with type-safe route parameters and modular nested graphs (`authGraph`, `homeGraph`).
+- **Language:** [Kotlin 1.9.22](android/gradle/libs.versions.toml) (Target SDK 34, Min SDK 26, JVM 17)
+- **UI Framework:** [Jetpack Compose](android/app/build.gradle.kts) with Material 3 Design Tokens, Custom Typography, Shapes, and Colors.
+- **Dependency Injection:** [Dagger Hilt 2.50](android/app/src/main/java/com/communityos/authentication/di/AuthModule.kt) with KSP (`@HiltAndroidApp`, `@HiltViewModel`, `@AndroidEntryPoint`, `@Module`, `@InstallIn`).
+- **Navigation:** [Jetpack Compose Navigation](android/app/src/main/java/com/communityos/navigation/AppNavigation.kt) with type-safe route parameters and modular nested graphs (`authGraph`, `homeGraph`).
 - **Networking & Persistence:** Retrofit 2 (v2.9.0), Gson Converter, OkHttp Logging Interceptor, and Room Database (v2.6.1) ready for offline caching.
 - **Asynchronous Execution:** Kotlin Coroutines & `StateFlow` for state handling.
 
@@ -92,9 +79,9 @@ The project adopts **Android Clean Architecture** with **MVVM/MVI design pattern
 
 ## 📁 Repository Structure
 
-```
-d:/Projects/community helper/
-├── README.md                          # Comprehensive Documentation
+```text
+Community-helper/
+├── README.md                          # Main Project Documentation
 ├── project description.docx           # Product Requirement & Feature Roadmap Spec
 ├── backend/                           # Reserved directory for Spring Boot REST APIs
 └── android/                           # Native Android Application Source
@@ -212,7 +199,7 @@ To build and run the **Community OS** Android app on your machine, ensure you ha
 
 ### Step 1: Open the Project in Android Studio
 1. Open **Android Studio**.
-2. Select **Open** and browse to the repository folder: `d:\Projects\community helper\android`.
+2. Select **Open** and browse to the repository folder: `android`.
 3. Allow Android Studio to import the project and perform the initial Gradle Sync.
 
 ### Step 2: Gradle Build & Verification
@@ -264,12 +251,13 @@ You can interactively test the complete workflow using the built-in mock reposit
 
 ## 🗺️ Project Roadmap & Future Scope
 
-```
-┌─────────────────────────┐     ┌─────────────────────────┐     ┌─────────────────────────┐
-│     Phase 1 (Current)   │ ──► │   Phase 2 (Upcoming)    │ ──► │  Phase 3 (AI & Cloud)   │
-│ UI Foundation & Clean   │     │ Backend REST & Database │     │ AI Complaint Priority,  │
-│ Architecture Mock Setup │     │ Spring Boot + Postgres  │     │ Face Auth & Analytics   │
-└─────────────────────────┘     └─────────────────────────┘     └─────────────────────────┘
+```mermaid
+graph LR
+    Phase1["<b>Phase 1 (Current Base)</b><br/>Android Compose UI<br/>Clean Architecture & MVI"]
+    Phase2["<b>Phase 2 (Upcoming)</b><br/>Spring Boot REST APIs<br/>PostgreSQL & FCM Notifications"]
+    Phase3["<b>Phase 3 (AI & Cloud)</b><br/>AI Complaint Categorization<br/>Face Auth & Analytics"]
+
+    Phase1 --> Phase2 --> Phase3
 ```
 
 - [x] **Phase 1 (Current Base):** Complete Android UI implementation, Jetpack Compose Design System, Clean Architecture, Hilt DI, and MVI navigation graphs for all major modules.
@@ -282,6 +270,4 @@ You can interactively test the complete workflow using the built-in mock reposit
 
 This project is created for smart community management research and development. 
 
-*For inquiries or collaboration, please refer to the project specification in [`project description.docx`](file:///d:/Projects/community%20helper/project%20description.docx).*
-#   C o m m u n i t y - h e l p e r  
- 
+*For inquiries or collaboration, please refer to the project specification in [`project description.docx`](project%20description.docx).*
