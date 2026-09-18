@@ -8,4 +8,5 @@ interface AuthRepository {
     suspend fun registerUser(name: String, email: String): Result<AuthUser>
     suspend fun selectCommunity(communityName: String): Result<Unit>
     suspend fun verifyFlat(flatNo: String, role: String): Result<Unit>
+    suspend fun restoreSession(): Result<AuthUser?>
 }

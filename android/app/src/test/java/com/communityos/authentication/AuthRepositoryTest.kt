@@ -14,6 +14,7 @@ import com.communityos.data.local.dao.UserDao
 import com.communityos.data.local.entity.CommunityEntity
 import com.communityos.data.local.entity.FlatEntity
 import com.communityos.data.local.entity.UserEntity
+import com.communityos.data.local.session.Session
 import com.communityos.data.local.session.SessionManager
 import com.communityos.models.UserRole
 import kotlinx.coroutines.CoroutineScope
@@ -194,5 +195,76 @@ class AuthRepositoryTest {
 
         val user = userDao.getUserByPhoneNumber("9900112244")
         assertNull(user?.flatId)
+    }
+
+    @Test
+    fun restoreSession_withNoSession_returnsNull() = runTest {
+        // DataStore has no session
+        assertNull(sessionManager.getSession())
+
+        val result = authRepository.restoreSession()
+
+        assertTrue(result.isSuccess)
+        assertNull(result.getOrNull())
+    }
+
+    @Test
+    fun restoreSession_withValidSession_returnsUserAndRestoresState() = runTest {
+        val user = UserEntity(
+            id = "user_valid_1",
+            phoneNumber = "9876543210",
+            name = "Valid Resident",
+            role = UserRole.RESIDENT
+        )
+        userDao.insertUser(user)
+        sessionManager.saveSession(Session(userId = "user_valid_1", role = UserRole.RESIDENT))
+
+        val result = authRepository.restoreSession()
+
+        assertTrue(result.isSuccess)
+        val authUser = result.getOrNull()
+        assertNotNull(authUser)
+        assertEquals("user_valid_1", authUser?.uid)
+        assertEquals("Valid Resident", authUser?.displayName)
+        assertEquals(UserRole.RESIDENT, authUser?.role)
+    }
+
+    @Test
+    fun restoreSession_withInvalidSession_clearsSessionAndReturnsNull() = runTest {
+        // Session points to non-existent user in Room
+        sessionManager.saveSession(Session(userId = "ghost_user_999", role = UserRole.RESIDENT))
+        assertNull(userDao.getUserById("ghost_user_999"))
+
+        val result = authRepository.restoreSession()
+
+        assertTrue(result.isSuccess)
+        assertNull(result.getOrNull())
+
+        // Invalid session must be cleared from DataStore
+        assertNull(sessionManager.getSession())
+    }
+
+    @Test
+    fun restoreSession_preservesPersistedRole() = runTest {
+        val adminUser = UserEntity(
+            id = "user_admin_1",
+            phoneNumber = "9988776655",
+            name = "Admin User",
+            role = UserRole.ADMIN
+        )
+        userDao.insertUser(adminUser)
+        sessionManager.saveSession(Session(userId = "user_admin_1", role = UserRole.ADMIN))
+
+        val result = authRepository.restoreSession()
+
+        assertTrue(result.isSuccess)
+        val authUser = result.getOrNull()
+        assertNotNull(authUser)
+        assertEquals(UserRole.ADMIN, authUser?.role)
+
+        // Session in DataStore remains intact with ADMIN role
+        val currentSession = sessionManager.getSession()
+        assertNotNull(currentSession)
+        assertEquals(UserRole.ADMIN, currentSession?.role)
     }
 }

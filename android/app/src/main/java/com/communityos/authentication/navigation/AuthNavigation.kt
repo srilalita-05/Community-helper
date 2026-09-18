@@ -19,7 +19,12 @@ fun NavGraphBuilder.authGraph(
 ) {
     composable(Screen.Splash.route) {
         SplashScreen(
-            onSplashComplete = {
+            onNavigateToHome = {
+                navController.navigate(Screen.ResidentDashboard.route) {
+                    popUpTo(Screen.Splash.route) { inclusive = true }
+                }
+            },
+            onNavigateToAuth = {
                 navController.navigate(Screen.Onboarding.route) {
                     popUpTo(Screen.Splash.route) { inclusive = true }
                 }

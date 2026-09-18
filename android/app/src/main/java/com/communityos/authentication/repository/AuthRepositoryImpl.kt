@@ -172,4 +172,21 @@ class AuthRepositoryImpl @Inject constructor(
 
         return Result.success(Unit)
     }
+
+    override suspend fun restoreSession(): Result<AuthUser?> {
+        val session = sessionManager.getSession() ?: return Result.success(null)
+
+        val userEntity = userDao.getUserById(session.userId)
+        if (userEntity == null) {
+            // Invalid session: user not found in Room, clear invalid session
+            sessionManager.clearSession()
+            currentUser = null
+            return Result.success(null)
+        }
+
+        val domainUser = userEntity.toDomain()
+        currentUser = domainUser
+
+        return Result.success(domainUser.toAuthUser(isNewUser = false))
+    }
 }

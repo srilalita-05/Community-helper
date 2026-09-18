@@ -13,7 +13,8 @@ data class AuthUser(
     val phoneNumber: String,
     val displayName: String? = null,
     val email: String? = null,
-    val isNewUser: Boolean = false
+    val isNewUser: Boolean = false,
+    val role: UserRole = UserRole.RESIDENT
 )
 
 fun User.toAuthUser(isNewUser: Boolean = false): AuthUser = AuthUser(
@@ -21,11 +22,12 @@ fun User.toAuthUser(isNewUser: Boolean = false): AuthUser = AuthUser(
     phoneNumber = phoneNumber,
     displayName = name,
     email = email,
-    isNewUser = isNewUser
+    isNewUser = isNewUser,
+    role = role
 )
 
 fun AuthUser.toDomain(
-    role: UserRole = UserRole.RESIDENT,
+    role: UserRole = this.role,
     communityId: String? = null,
     flatId: String? = null,
     isApproved: Boolean = false
