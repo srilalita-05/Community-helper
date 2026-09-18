@@ -92,4 +92,33 @@ class UserDaoTest {
         assertNotNull(updated)
         assertEquals(UserRole.ADMIN, updated?.role)
     }
+
+    @Test
+    fun updateUserNameAndEmail_updates_only_name_and_email() = runTest {
+        val user = UserEntity(
+            id = "user_4",
+            phoneNumber = "9876543210",
+            name = "Original Name",
+            email = "orig@example.com",
+            role = UserRole.RESIDENT,
+            communityId = "comm_1",
+            flatId = "flat_1",
+            isApproved = true
+        )
+        userDao.insertUser(user)
+
+        userDao.updateUserNameAndEmail("user_4", "New Name", "new@example.com")
+
+        val updated = userDao.getUserById("user_4")
+        assertNotNull(updated)
+        assertEquals("New Name", updated?.name)
+        assertEquals("new@example.com", updated?.email)
+        // Verify other fields remain strictly unchanged
+        assertEquals("user_4", updated?.id)
+        assertEquals("9876543210", updated?.phoneNumber)
+        assertEquals(UserRole.RESIDENT, updated?.role)
+        assertEquals("comm_1", updated?.communityId)
+        assertEquals("flat_1", updated?.flatId)
+        assertEquals(true, updated?.isApproved)
+    }
 }

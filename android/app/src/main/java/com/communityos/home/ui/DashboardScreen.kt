@@ -52,7 +52,7 @@ fun DashboardScreen(
         ) {
             when (selectedItem) {
                 0 -> HomeScreen(state = state, onEvent = onEvent)
-                4 -> ProfileScreen(state = state, onLogout = { onEvent(HomeEvent.Logout) })
+                4 -> ProfileScreen(onLogout = { onEvent(HomeEvent.Logout) })
                 else -> {
                     // Placeholders for Feed, Events, Marketplace
                     Box(

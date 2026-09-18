@@ -40,4 +40,7 @@ interface UserDao {
 
     @Query("SELECT * FROM users WHERE communityId = :communityId AND isApproved = 0")
     suspend fun getPendingApprovals(communityId: String): List<UserEntity>
+
+    @Query("UPDATE users SET name = :name, email = :email WHERE id = :userId")
+    suspend fun updateUserNameAndEmail(userId: String, name: String, email: String?)
 }
