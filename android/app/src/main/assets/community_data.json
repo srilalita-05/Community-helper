@@ -1,0 +1,111 @@
+{
+  "communities": [
+    {
+      "id": "community_orchard_heights",
+      "name": "Orchard Heights Apartments",
+      "address": "42 Greenfield Boulevard",
+      "city": "Bengaluru",
+      "blocks": [
+        {
+          "id": "block_a",
+          "name": "Block A",
+          "flats": [
+            {
+              "id": "flat_a101",
+              "number": "A-101",
+              "floor": 1
+            },
+            {
+              "id": "flat_a102",
+              "number": "A-102",
+              "floor": 1
+            },
+            {
+              "id": "flat_a201",
+              "number": "A-201",
+              "floor": 2
+            }
+          ]
+        },
+        {
+          "id": "block_b",
+          "name": "Block B",
+          "flats": [
+            {
+              "id": "flat_b301",
+              "number": "B-301",
+              "floor": 3
+            },
+            {
+              "id": "flat_b304",
+              "number": "B-304",
+              "floor": 3
+            }
+          ]
+        },
+        {
+          "id": "block_c",
+          "name": "Block C",
+          "flats": [
+            {
+              "id": "flat_c501",
+              "number": "C-501",
+              "floor": 5
+            },
+            {
+              "id": "flat_c502",
+              "number": "C-502",
+              "floor": 5
+            }
+          ]
+        },
+        {
+          "id": "block_d",
+          "name": "Block D",
+          "flats": [
+            {
+              "id": "flat_d101",
+              "number": "D-101",
+              "floor": 1
+            },
+            {
+              "id": "flat_d102",
+              "number": "D-102",
+              "floor": 1
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "community_palm_meadows",
+      "name": "Palm Meadows Villa",
+      "address": "10 Sunrise Avenue",
+      "city": "Hyderabad",
+      "blocks": [
+        {
+          "id": "villa_1",
+          "name": "Villa 1",
+          "flats": [
+            {
+              "id": "flat_v101",
+              "number": "V-101",
+              "floor": 1
+            }
+          ]
+        },
+        {
+          "id": "villa_2",
+          "name": "Villa 2",
+          "flats": [
+            {
+              "id": "flat_v102",
+              "number": "V-102",
+              "floor": 1
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
