@@ -1,0 +1,131 @@
+# ====================================================================
+# Community OS - Git Ignore Configuration
+# ====================================================================
+
+# --------------------------------------------------------------------
+# Built Binaries and Package Outputs
+# --------------------------------------------------------------------
+*.apk
+*.aab
+*.ap_
+*.dex
+*.class
+
+# --------------------------------------------------------------------
+# Gradle & Build Outputs
+# --------------------------------------------------------------------
+.gradle/
+**/.gradle/
+build/
+**/build/
+!gradle/wrapper/gradle-wrapper.jar
+!gradle/wrapper/gradle-wrapper.properties
+!**/gradle/wrapper/gradle-wrapper.jar
+!**/gradle/wrapper/gradle-wrapper.properties
+
+# --------------------------------------------------------------------
+# Android Studio / IntelliJ IDEA
+# --------------------------------------------------------------------
+.idea/
+**/.idea/
+*.iml
+**/*.iml
+*.ipr
+*.iws
+out/
+**/out/
+.shelf/
+**/.shelf/
+
+# --------------------------------------------------------------------
+# Android SDK & Local Configs (Machine-Specific)
+# --------------------------------------------------------------------
+local.properties
+**/local.properties
+.externalNativeBuild/
+**/.externalNativeBuild/
+.cxx/
+**/.cxx/
+captures/
+**/captures/
+output.json
+**/output.json
+
+# --------------------------------------------------------------------
+# Signing & Keystore Files (Security & Credentials)
+# --------------------------------------------------------------------
+*.jks
+*.keystore
+*.p12
+*.key
+signing.properties
+secrets.properties
+**/secrets.properties
+
+# --------------------------------------------------------------------
+# Google Services / Firebase (Credentials)
+# --------------------------------------------------------------------
+# google-services.json
+# **/google-services.json
+
+# --------------------------------------------------------------------
+# Java / JVM Crash Logs
+# --------------------------------------------------------------------
+*.log
+hs_err_pid*
+replay_pid*
+
+# --------------------------------------------------------------------
+# Operating System Files
+# --------------------------------------------------------------------
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+.Spotlight-V100
+.Trashes
+
+# Windows
+Thumbs.db
+Thumbs.db:encryptable
+ehthumbs.db
+ehthumbs_vista.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# Linux
+*~
+.directory
+
+# --------------------------------------------------------------------
+# Visual Studio Code
+# --------------------------------------------------------------------
+.vscode/
+**/.vscode/
+*.code-workspace
+
+# --------------------------------------------------------------------
+# Agent / Scratch / Temporary Media & Screenshots
+# --------------------------------------------------------------------
+emulator_screen.png
+*.screenshot.png
+.tempmediaStorage/
+**/.tempmediaStorage/
+scratch/
+**/scratch/
+
+# --------------------------------------------------------------------
+# Future Backend / Web Outputs
+# --------------------------------------------------------------------
+node_modules/
+**/node_modules/
+target/
+**/target/
+dist/
+**/dist/
+__pycache__/
+*.pyc
+.env
+.env.*
+!.env.example

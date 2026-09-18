@@ -1,0 +1,15 @@
+# Android Project Git Ignore Configuration
+*.iml
+.gradle/
+build/
+/local.properties
+/.idea/
+.DS_Store
+/captures
+.externalNativeBuild
+.cxx
+output.json
+
+# Keep Gradle Wrapper files intact
+!gradle/wrapper/gradle-wrapper.jar
+!gradle/wrapper/gradle-wrapper.properties

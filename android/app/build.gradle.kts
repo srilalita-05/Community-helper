@@ -53,7 +53,7 @@ android {
 
 dependencies {
     implementation(libs.androidx.core.ktx)
-    implementation(libs.androidx.lifecycle.runtime-ktx)
+    implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)
     
     // Compose
@@ -79,9 +79,19 @@ dependencies {
     implementation(libs.room.ktx)
     ksp(libs.room.compiler)
 
+    // DataStore Preferences
+    implementation(libs.androidx.datastore.preferences)
+
     // Coroutines
     implementation(libs.kotlinx.coroutines.android)
 
     // UI Tooling for Debug
     debugImplementation(libs.androidx.compose.ui.tooling)
+
+    // Unit Testing
+    testImplementation(libs.junit)
+    testImplementation(libs.kotlinx.coroutines.test)
+    testImplementation(libs.androidx.test.core)
+    testImplementation(libs.androidx.test.ext.junit)
+    testImplementation(libs.robolectric)
 }

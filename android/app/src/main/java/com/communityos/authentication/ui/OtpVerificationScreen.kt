@@ -53,6 +53,7 @@ fun OtpVerificationScreen(
             Spacer(modifier = Modifier.height(32.dp))
             OtpInputField(
                 otpLength = 6,
+                otpValue = state.otpCode,
                 onOtpChange = { onEvent(AuthEvent.OnOtpChanged(it)) }
             )
             if (state.errorMessage != null) {

@@ -1,5 +1,5 @@
 <resources>
-    <style name="Theme.CommunityOS" parent="Theme.Material3.DayNight.NoActionBar">
+    <style name="Theme.CommunityOS" parent="android:Theme.Material.Light.NoActionBar">
         <!-- Custom application styles can go here -->
     </style>
 </resources>
