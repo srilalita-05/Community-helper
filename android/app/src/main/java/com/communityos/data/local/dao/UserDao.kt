@@ -30,7 +30,10 @@ interface UserDao {
     suspend fun updateUserRole(userId: String, role: UserRole)
 
     @Query("UPDATE users SET communityId = :communityId, flatId = :flatId WHERE id = :userId")
-    suspend fun updateUserCommunityAndFlat(userId: String, communityId: String, flatId: String)
+    suspend fun updateUserCommunityAndFlat(userId: String, communityId: String?, flatId: String?)
+
+    @Query("UPDATE users SET communityId = :communityId WHERE id = :userId")
+    suspend fun updateUserCommunity(userId: String, communityId: String)
 
     @Query("UPDATE users SET isApproved = :isApproved WHERE id = :userId")
     suspend fun updateApprovalStatus(userId: String, isApproved: Boolean)

@@ -80,6 +80,13 @@ class SessionManager(
     }
 
     /**
+     * Persists the active session credentials via [Session] model.
+     */
+    suspend fun saveSession(session: Session) {
+        saveSession(session.userId, session.role)
+    }
+
+    /**
      * Clears the active session (e.g. on logout).
      */
     suspend fun clearSession() {
