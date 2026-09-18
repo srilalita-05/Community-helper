@@ -41,8 +41,11 @@ fun AppNavigation() {
         homeGraph(
             navController = navController,
             onLogout = {
-                navController.navigate(Screen.Login.route) {
-                    popUpTo(0) { inclusive = true }
+                navController.navigate(Screen.Onboarding.route) {
+                    popUpTo(Screen.ResidentDashboard.route) {
+                        inclusive = true
+                    }
+                    launchSingleTop = true
                 }
             }
         )

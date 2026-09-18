@@ -5,4 +5,5 @@ sealed class HomeEvent {
     data class TriggerEmergency(val type: String) : HomeEvent()
     object DismissEmergency : HomeEvent()
     object ClearError : HomeEvent()
+    object Logout : HomeEvent()
 }

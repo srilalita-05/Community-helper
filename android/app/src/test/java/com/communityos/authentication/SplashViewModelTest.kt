@@ -41,6 +41,7 @@ class SplashViewModelTest {
         override suspend fun selectCommunity(communityName: String): Result<Unit> = Result.success(Unit)
         override suspend fun verifyFlat(flatNo: String, role: String): Result<Unit> = Result.success(Unit)
         override suspend fun restoreSession(): Result<AuthUser?> = sessionResult
+        override suspend fun logout(): Result<Unit> = Result.success(Unit)
     }
 
     @Test

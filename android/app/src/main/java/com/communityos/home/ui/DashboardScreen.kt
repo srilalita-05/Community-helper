@@ -16,8 +16,7 @@ import com.communityos.home.state.HomeState
 @Composable
 fun DashboardScreen(
     state: HomeState,
-    onEvent: (HomeEvent) -> Unit,
-    onLogout: () -> Unit
+    onEvent: (HomeEvent) -> Unit
 ) {
     var selectedItem by remember { mutableStateOf(0) }
     val items = listOf("Home", "Feed", "Events", "Marketplace", "Profile")
@@ -53,7 +52,7 @@ fun DashboardScreen(
         ) {
             when (selectedItem) {
                 0 -> HomeScreen(state = state, onEvent = onEvent)
-                4 -> ProfileScreen(state = state, onLogout = onLogout)
+                4 -> ProfileScreen(state = state, onLogout = { onEvent(HomeEvent.Logout) })
                 else -> {
                     // Placeholders for Feed, Events, Marketplace
                     Box(

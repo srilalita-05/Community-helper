@@ -189,4 +189,11 @@ class AuthRepositoryImpl @Inject constructor(
 
         return Result.success(domainUser.toAuthUser(isNewUser = false))
     }
+
+    override suspend fun logout(): Result<Unit> {
+        sessionManager.clearSession()
+        currentUser = null
+        tempPhone = ""
+        return Result.success(Unit)
+    }
 }

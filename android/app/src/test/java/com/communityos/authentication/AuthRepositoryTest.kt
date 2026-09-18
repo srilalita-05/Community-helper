@@ -267,4 +267,86 @@ class AuthRepositoryTest {
         assertNotNull(currentSession)
         assertEquals(UserRole.ADMIN, currentSession?.role)
     }
+
+    @Test
+    fun logout_clearsPersistedSessionInDataStore() = runTest {
+        authRepository.sendOtp("9876543210")
+        authRepository.verifyOtp("123456")
+        assertNotNull(sessionManager.getSession())
+
+        val logoutResult = authRepository.logout()
+        assertTrue(logoutResult.isSuccess)
+
+        assertNull(sessionManager.getSession())
+    }
+
+    @Test
+    fun logout_clearsInMemoryAuthenticatedUserState() = runTest {
+        authRepository.sendOtp("9876543210")
+        authRepository.verifyOtp("123456")
+
+        val logoutResult = authRepository.logout()
+        assertTrue(logoutResult.isSuccess)
+
+        // Attempting an action requiring in-memory currentUser / active session must fail
+        val selectResult = authRepository.selectCommunity("Orchard Heights Apartments")
+        assertTrue(selectResult.isFailure)
+        assertTrue(selectResult.exceptionOrNull() is IllegalStateException)
+    }
+
+    @Test
+    fun logout_doesNotDeleteRoomUserOrCommunityData() = runTest {
+        val community = CommunityEntity(
+            id = "comm_test_1",
+            name = "Test Community",
+            address = "123 Street",
+            city = "City",
+            totalBlocks = 2
+        )
+        communityDao.insertCommunity(community)
+
+        val flat = FlatEntity(
+            id = "flat_101",
+            communityId = "comm_test_1",
+            block = "Block A",
+            flatNumber = "A-101",
+            floor = 1
+        )
+        flatDao.insertFlat(flat)
+
+        authRepository.sendOtp("9876543210")
+        authRepository.verifyOtp("123456")
+
+        val userBeforeLogout = userDao.getUserByPhoneNumber("9876543210")
+        assertNotNull(userBeforeLogout)
+
+        val logoutResult = authRepository.logout()
+        assertTrue(logoutResult.isSuccess)
+
+        // Room user must still exist and be completely unchanged
+        val userAfterLogout = userDao.getUserByPhoneNumber("9876543210")
+        assertNotNull(userAfterLogout)
+        assertEquals(userBeforeLogout?.id, userAfterLogout?.id)
+        assertEquals(userBeforeLogout?.phoneNumber, userAfterLogout?.phoneNumber)
+        assertEquals(userBeforeLogout?.name, userAfterLogout?.name)
+
+        // Room community and flat data must be completely preserved
+        val persistedCommunity = communityDao.getCommunityById("comm_test_1")
+        assertNotNull(persistedCommunity)
+        val persistedFlat = flatDao.getFlatByNumber("comm_test_1", "A-101")
+        assertNotNull(persistedFlat)
+    }
+
+    @Test
+    fun logout_subsequentRestoreSessionReturnsNoAuthenticatedSession() = runTest {
+        authRepository.sendOtp("9876543210")
+        authRepository.verifyOtp("123456")
+
+        val logoutResult = authRepository.logout()
+        assertTrue(logoutResult.isSuccess)
+
+        val restoreResult = authRepository.restoreSession()
+        assertTrue(restoreResult.isSuccess)
+        assertNull(restoreResult.getOrNull())
+    }
 }
