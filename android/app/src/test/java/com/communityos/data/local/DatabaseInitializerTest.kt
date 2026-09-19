@@ -24,6 +24,7 @@ class DatabaseInitializerTest {
     private lateinit var communityDao: CommunityDao
     private lateinit var flatDao: FlatDao
     private lateinit var userDao: UserDao
+    private lateinit var noticeDao: com.communityos.data.local.dao.NoticeDao
     private lateinit var context: Context
     private lateinit var initializer: DatabaseInitializer
 
@@ -36,7 +37,8 @@ class DatabaseInitializerTest {
         communityDao = database.communityDao()
         flatDao = database.flatDao()
         userDao = database.userDao()
-        initializer = DatabaseInitializer(context, communityDao, flatDao)
+        noticeDao = database.noticeDao()
+        initializer = DatabaseInitializer(context, communityDao, flatDao, noticeDao)
     }
 
     @After
@@ -224,5 +226,53 @@ class DatabaseInitializerTest {
         assertEquals("flt_t1_101", t1101?.id)
         assertEquals("Tower 1", t1101?.block)
         assertEquals(1, t1101?.floor)
+    }
+
+    @Test
+    fun seedDemoDataIfEmpty_populates_notices_for_communities() = runTest {
+        assertEquals(0, noticeDao.getCount())
+
+        initializer.seedDemoDataIfEmpty()
+
+        assertTrue(noticeDao.getCount() > 0)
+
+        val orchardNotices = noticeDao.getNoticesForCommunity("community_orchard_heights")
+        assertEquals(3, orchardNotices.size)
+
+        val palmNotices = noticeDao.getNoticesForCommunity("community_palm_meadows")
+        assertEquals(1, palmNotices.size)
+    }
+
+    @Test
+    fun seedNotices_is_idempotent_and_does_not_duplicate() = runTest {
+        initializer.seedDemoDataIfEmpty()
+        val initialNoticeCount = noticeDao.getCount()
+        val initialCommunityCount = communityDao.getCount()
+        val initialFlatCount = flatDao.getCount()
+
+        // Run second time
+        initializer.seedDemoDataIfEmpty()
+
+        assertEquals(initialNoticeCount, noticeDao.getCount())
+        assertEquals(initialCommunityCount, communityDao.getCount())
+        assertEquals(initialFlatCount, flatDao.getCount())
+    }
+
+    @Test
+    fun seedNotices_preserves_existing_user_data() = runTest {
+        val testUser = UserEntity(
+            id = "user_persist_test",
+            phoneNumber = "9999999999",
+            name = "Persistence Test",
+            communityId = "community_orchard_heights"
+        )
+        userDao.insertUser(testUser)
+
+        initializer.seedDemoDataIfEmpty()
+
+        val retrievedUser = userDao.getUserById("user_persist_test")
+        assertNotNull(retrievedUser)
+        assertEquals("Persistence Test", retrievedUser?.name)
+        assertEquals("community_orchard_heights", retrievedUser?.communityId)
     }
 }

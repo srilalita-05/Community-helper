@@ -25,4 +25,10 @@ sealed class Screen(val route: String) {
     object ClubDetails : Screen("club_details/{clubId}") {
         fun createRoute(clubId: String) = "club_details/$clubId"
     }
+
+    // Resident Notices Flow
+    object NoticesList : Screen("notices_list")
+    object NoticeDetails : Screen("notice_details/{noticeId}") {
+        fun createRoute(noticeId: String) = "notice_details/$noticeId"
+    }
 }

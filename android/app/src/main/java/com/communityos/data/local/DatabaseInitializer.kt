@@ -3,8 +3,10 @@ package com.communityos.data.local
 import android.content.Context
 import com.communityos.data.local.dao.CommunityDao
 import com.communityos.data.local.dao.FlatDao
+import com.communityos.data.local.dao.NoticeDao
 import com.communityos.data.local.entity.CommunityEntity
 import com.communityos.data.local.entity.FlatEntity
+import com.communityos.data.local.entity.NoticeEntity
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -14,16 +16,18 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 /**
- * Idempotent initializer for developer-managed master community seed data.
+ * Idempotent initializer for developer-managed master community seed data and notices.
  *
  * Loads initial communities, blocks, and flats from assets/community_data.json
- * into Room persistence. Never wipes existing user or session data.
+ * and initial notices from assets/notice_data.json into Room persistence.
+ * Never wipes existing user or session data.
  */
 @Singleton
 class DatabaseInitializer @Inject constructor(
     @ApplicationContext private val context: Context,
     private val communityDao: CommunityDao,
-    private val flatDao: FlatDao
+    private val flatDao: FlatDao,
+    private val noticeDao: NoticeDao
 ) {
 
     suspend fun seedDemoDataIfEmpty() = withContext(Dispatchers.IO) {
@@ -40,6 +44,21 @@ class DatabaseInitializer @Inject constructor(
             fallbackFile?.readText() ?: return@withContext
         }
         seedFromJson(jsonString)
+
+        val noticeJsonString = try {
+            context.assets.open(NOTICE_DATA_ASSET).bufferedReader().use { it.readText() }
+        } catch (e: Exception) {
+            val fileCandidates = listOf(
+                File("src/main/assets/$NOTICE_DATA_ASSET"),
+                File("app/src/main/assets/$NOTICE_DATA_ASSET"),
+                File("../app/src/main/assets/$NOTICE_DATA_ASSET")
+            )
+            val fallbackFile = fileCandidates.firstOrNull { it.exists() }
+            fallbackFile?.readText()
+        }
+        if (noticeJsonString != null) {
+            seedNoticesFromJson(noticeJsonString)
+        }
     }
 
     suspend fun seedFromJson(jsonString: String) = withContext(Dispatchers.IO) {
@@ -122,7 +141,49 @@ class DatabaseInitializer @Inject constructor(
         }
     }
 
+    suspend fun seedNoticesFromJson(jsonString: String) = withContext(Dispatchers.IO) {
+        val jsonObject = JSONObject(jsonString)
+        val noticesArray = jsonObject.optJSONArray("notices") ?: return@withContext
+
+        val noticesToInsert = mutableListOf<NoticeEntity>()
+        for (i in 0 until noticesArray.length()) {
+            val noticeObj = noticesArray.getJSONObject(i)
+            val id = noticeObj.getString("id")
+            val communityId = noticeObj.getString("communityId")
+            val title = noticeObj.getString("title")
+            val content = noticeObj.getString("content")
+            val createdAt = noticeObj.getLong("createdAt")
+            val updatedAt = if (noticeObj.has("updatedAt") && !noticeObj.isNull("updatedAt")) {
+                noticeObj.getLong("updatedAt")
+            } else {
+                null
+            }
+
+            noticesToInsert.add(
+                NoticeEntity(
+                    id = id,
+                    communityId = communityId,
+                    title = title,
+                    content = content,
+                    createdAt = createdAt,
+                    updatedAt = updatedAt
+                )
+            )
+        }
+
+        if (noticeDao.getCount() == 0) {
+            noticeDao.insertNotices(noticesToInsert)
+        } else {
+            for (notice in noticesToInsert) {
+                if (noticeDao.getNoticeByIdAndCommunity(notice.id, notice.communityId) == null) {
+                    noticeDao.insertNotice(notice)
+                }
+            }
+        }
+    }
+
     companion object {
         const val COMMUNITY_DATA_ASSET = "community_data.json"
+        const val NOTICE_DATA_ASSET = "notice_data.json"
     }
 }

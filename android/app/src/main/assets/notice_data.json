@@ -1,0 +1,36 @@
+{
+  "notices": [
+    {
+      "id": "notice_orchard_001",
+      "communityId": "community_orchard_heights",
+      "title": "Scheduled Water Supply Maintenance",
+      "content": "Please note that the overhead water tank cleaning and maintenance will take place on Saturday from 10:00 AM to 2:00 PM. Water supply will be temporarily suspended during this period. Kindly store adequate water in advance for essential needs. For any emergency requirements, contact the estate facility office.",
+      "createdAt": 1726650000000,
+      "updatedAt": null
+    },
+    {
+      "id": "notice_orchard_002",
+      "communityId": "community_orchard_heights",
+      "title": "Annual General Body Meeting (AGM)",
+      "content": "The Annual General Body Meeting of Orchard Heights Apartments will be held on Sunday at 5:00 PM in the Clubhouse Community Hall. All residents and apartment owners are cordially requested to attend. The agenda includes presentation of the annual financial audit, security infrastructure upgrades, and clubhouse renovation proposals.",
+      "createdAt": 1726563600000,
+      "updatedAt": null
+    },
+    {
+      "id": "notice_orchard_003",
+      "communityId": "community_orchard_heights",
+      "title": "Updated Visitor and Delivery Guidelines",
+      "content": "To enhance community security and streamline traffic, all delivery personnel (food, grocery, and e-commerce) must register at Gate 1 and obtain an entry pass. Residents are encouraged to pre-approve expected guests to minimize delays at the security checkpoint.",
+      "createdAt": 1726477200000,
+      "updatedAt": null
+    },
+    {
+      "id": "notice_palm_001",
+      "communityId": "community_palm_meadows",
+      "title": "Solar Streetlight Installation",
+      "content": "Installation of eco-friendly solar streetlights along Avenue 1 and 2 will commence this Monday. Please exercise caution when driving or walking in these zones during installation hours (9:00 AM - 4:00 PM).",
+      "createdAt": 1726390800000,
+      "updatedAt": null
+    }
+  ]
+}
