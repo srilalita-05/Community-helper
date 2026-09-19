@@ -266,6 +266,12 @@ graph LR
 
 ---
 
+## 📚 Documentation
+
+- [Communities & Flats](android/COMMUNITIES.md)
+
+---
+
 ## 📄 License & Contact
 
 This project is created for smart community management research and development. 
