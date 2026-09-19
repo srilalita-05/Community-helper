@@ -6,6 +6,7 @@ import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
 import com.communityos.data.local.CommunityDatabase
 import com.communityos.data.local.dao.CommunityDao
+import com.communityos.data.local.dao.ComplaintDao
 import com.communityos.data.local.dao.FlatDao
 import com.communityos.data.local.dao.NoticeDao
 import com.communityos.data.local.dao.UserDao
@@ -43,6 +44,42 @@ object DatabaseModule {
         }
     }
 
+    val MIGRATION_2_3 = object : Migration(2, 3) {
+        override fun migrate(db: SupportSQLiteDatabase) {
+            db.execSQL(
+                """
+                CREATE TABLE IF NOT EXISTS `complaints` (
+                    `id` TEXT NOT NULL,
+                    `residentId` TEXT NOT NULL,
+                    `communityId` TEXT NOT NULL,
+                    `flatId` TEXT NOT NULL,
+                    `category` TEXT NOT NULL,
+                    `description` TEXT NOT NULL,
+                    `status` TEXT NOT NULL,
+                    `createdAt` INTEGER NOT NULL,
+                    `updatedAt` INTEGER,
+                    PRIMARY KEY(`id`)
+                )
+                """.trimIndent()
+            )
+            db.execSQL(
+                """
+                CREATE INDEX IF NOT EXISTS `index_complaints_residentId` ON `complaints` (`residentId`)
+                """.trimIndent()
+            )
+            db.execSQL(
+                """
+                CREATE INDEX IF NOT EXISTS `index_complaints_communityId` ON `complaints` (`communityId`)
+                """.trimIndent()
+            )
+            db.execSQL(
+                """
+                CREATE INDEX IF NOT EXISTS `index_complaints_flatId` ON `complaints` (`flatId`)
+                """.trimIndent()
+            )
+        }
+    }
+
     @Provides
     @Singleton
     fun provideCommunityDatabase(
@@ -53,7 +90,7 @@ object DatabaseModule {
             CommunityDatabase::class.java,
             CommunityDatabase.DATABASE_NAME
         )
-            .addMigrations(MIGRATION_1_2)
+            .addMigrations(MIGRATION_1_2, MIGRATION_2_3)
             .fallbackToDestructiveMigration()
             .build()
     }
@@ -76,5 +113,10 @@ object DatabaseModule {
     @Provides
     fun provideNoticeDao(database: CommunityDatabase): NoticeDao {
         return database.noticeDao()
+    }
+
+    @Provides
+    fun provideComplaintDao(database: CommunityDatabase): ComplaintDao {
+        return database.complaintDao()
     }
 }

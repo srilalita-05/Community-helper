@@ -9,6 +9,9 @@ import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
+import com.communityos.complaints.ui.ComplaintDetailsScreen
+import com.communityos.complaints.ui.ComplaintsListScreen
+import com.communityos.complaints.ui.CreateComplaintScreen
 import com.communityos.home.event.HomeEffect
 import com.communityos.home.ui.DashboardScreen
 import com.communityos.home.viewmodel.HomeViewModel
@@ -37,6 +40,9 @@ fun NavGraphBuilder.homeGraph(
             onEvent = viewModel::onEvent,
             onNavigateToNotices = {
                 navController.navigate(Screen.NoticesList.route)
+            },
+            onNavigateToComplaints = {
+                navController.navigate(Screen.ComplaintsList.route)
             }
         )
     }
@@ -55,6 +61,31 @@ fun NavGraphBuilder.homeGraph(
         arguments = listOf(navArgument("noticeId") { type = NavType.StringType })
     ) {
         NoticeDetailsScreen(
+            onNavigateBack = { navController.popBackStack() }
+        )
+    }
+
+    composable(Screen.ComplaintsList.route) {
+        ComplaintsListScreen(
+            onNavigateBack = { navController.popBackStack() },
+            onNavigateToCreate = { navController.navigate(Screen.CreateComplaint.route) },
+            onComplaintClick = { complaintId ->
+                navController.navigate(Screen.ComplaintDetails.createRoute(complaintId))
+            }
+        )
+    }
+
+    composable(Screen.CreateComplaint.route) {
+        CreateComplaintScreen(
+            onNavigateBack = { navController.popBackStack() }
+        )
+    }
+
+    composable(
+        route = Screen.ComplaintDetails.route,
+        arguments = listOf(navArgument("complaintId") { type = NavType.StringType })
+    ) {
+        ComplaintDetailsScreen(
             onNavigateBack = { navController.popBackStack() }
         )
     }

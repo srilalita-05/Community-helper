@@ -11,7 +11,6 @@ import com.communityos.home.navigation.homeGraph
 import com.communityos.admin.AdminDashboardScreen
 import com.communityos.security.SecurityDashboardScreen
 import com.communityos.visitors.VisitorDetailsScreen
-import com.communityos.complaints.CreateComplaintScreen
 import com.communityos.clubs.ClubDetailsScreen
 
 @Composable
@@ -65,9 +64,6 @@ fun AppNavigation() {
         ) { backStackEntry ->
             val visitorId = backStackEntry.arguments?.getString("visitorId") ?: ""
             VisitorDetailsScreen(visitorId = visitorId)
-        }
-        composable(Screen.CreateComplaint.route) {
-            CreateComplaintScreen()
         }
         composable(
             route = Screen.ClubDetails.route,

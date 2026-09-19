@@ -17,7 +17,8 @@ import com.communityos.home.state.HomeState
 fun DashboardScreen(
     state: HomeState,
     onEvent: (HomeEvent) -> Unit,
-    onNavigateToNotices: () -> Unit = {}
+    onNavigateToNotices: () -> Unit = {},
+    onNavigateToComplaints: () -> Unit = {}
 ) {
     var selectedItem by remember { mutableStateOf(0) }
     val items = listOf("Home", "Feed", "Events", "Marketplace", "Profile")
@@ -55,7 +56,8 @@ fun DashboardScreen(
                 0 -> HomeScreen(
                     state = state,
                     onEvent = onEvent,
-                    onNavigateToNotices = onNavigateToNotices
+                    onNavigateToNotices = onNavigateToNotices,
+                    onNavigateToComplaints = onNavigateToComplaints
                 )
                 4 -> ProfileScreen(onLogout = { onEvent(HomeEvent.Logout) })
                 else -> {

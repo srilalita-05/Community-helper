@@ -21,7 +21,6 @@ sealed class Screen(val route: String) {
     object VisitorDetails : Screen("visitor_details/{visitorId}") {
         fun createRoute(visitorId: String) = "visitor_details/$visitorId"
     }
-    object CreateComplaint : Screen("create_complaint")
     object ClubDetails : Screen("club_details/{clubId}") {
         fun createRoute(clubId: String) = "club_details/$clubId"
     }
@@ -30,5 +29,12 @@ sealed class Screen(val route: String) {
     object NoticesList : Screen("notices_list")
     object NoticeDetails : Screen("notice_details/{noticeId}") {
         fun createRoute(noticeId: String) = "notice_details/$noticeId"
+    }
+
+    // Resident Complaints Flow
+    object ComplaintsList : Screen("complaints_list")
+    object CreateComplaint : Screen("create_complaint")
+    object ComplaintDetails : Screen("complaint_details/{complaintId}") {
+        fun createRoute(complaintId: String) = "complaint_details/$complaintId"
     }
 }
