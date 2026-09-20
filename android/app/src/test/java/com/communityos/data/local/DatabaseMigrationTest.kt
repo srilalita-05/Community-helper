@@ -149,4 +149,210 @@ class DatabaseMigrationTest {
         db.close()
         context.deleteDatabase(dbName)
     }
+
+    @Test
+    fun migration_3_to_4_createsVisitorsTableAndPreservesExistingData() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val dbName = "test_migration_3_4.db"
+        context.deleteDatabase(dbName)
+
+        val config = SupportSQLiteOpenHelper.Configuration.builder(context)
+            .name(dbName)
+            .callback(object : SupportSQLiteOpenHelper.Callback(3) {
+                override fun onCreate(db: SupportSQLiteDatabase) {
+                    // Create v3 tables: users, communities, flats, notices, complaints
+                    db.execSQL(
+                        """
+                        CREATE TABLE IF NOT EXISTS `users` (
+                            `id` TEXT NOT NULL,
+                            `phoneNumber` TEXT NOT NULL,
+                            `name` TEXT NOT NULL,
+                            `email` TEXT,
+                            `role` TEXT NOT NULL,
+                            `communityId` TEXT,
+                            `flatId` TEXT,
+                            `isApproved` INTEGER NOT NULL,
+                            `createdAt` INTEGER NOT NULL,
+                            PRIMARY KEY(`id`)
+                        )
+                        """.trimIndent()
+                    )
+                    db.execSQL(
+                        """
+                        CREATE TABLE IF NOT EXISTS `communities` (
+                            `id` TEXT NOT NULL,
+                            `name` TEXT NOT NULL,
+                            `address` TEXT NOT NULL,
+                            `city` TEXT NOT NULL,
+                            PRIMARY KEY(`id`)
+                        )
+                        """.trimIndent()
+                    )
+                    db.execSQL(
+                        """
+                        CREATE TABLE IF NOT EXISTS `flats` (
+                            `id` TEXT NOT NULL,
+                            `communityId` TEXT NOT NULL,
+                            `block` TEXT NOT NULL,
+                            `flatNumber` TEXT NOT NULL,
+                            `floor` INTEGER NOT NULL,
+                            PRIMARY KEY(`id`)
+                        )
+                        """.trimIndent()
+                    )
+                    db.execSQL(
+                        """
+                        CREATE TABLE IF NOT EXISTS `notices` (
+                            `id` TEXT NOT NULL,
+                            `communityId` TEXT NOT NULL,
+                            `title` TEXT NOT NULL,
+                            `content` TEXT NOT NULL,
+                            `createdAt` INTEGER NOT NULL,
+                            `updatedAt` INTEGER,
+                            PRIMARY KEY(`id`)
+                        )
+                        """.trimIndent()
+                    )
+                    db.execSQL(
+                        """
+                        CREATE TABLE IF NOT EXISTS `complaints` (
+                            `id` TEXT NOT NULL,
+                            `residentId` TEXT NOT NULL,
+                            `communityId` TEXT NOT NULL,
+                            `flatId` TEXT NOT NULL,
+                            `category` TEXT NOT NULL,
+                            `description` TEXT NOT NULL,
+                            `status` TEXT NOT NULL,
+                            `createdAt` INTEGER NOT NULL,
+                            `updatedAt` INTEGER,
+                            PRIMARY KEY(`id`)
+                        )
+                        """.trimIndent()
+                    )
+                }
+
+                override fun onUpgrade(db: SupportSQLiteDatabase, oldVersion: Int, newVersion: Int) {}
+            })
+            .build()
+
+        val helper = FrameworkSQLiteOpenHelperFactory().create(config)
+        var db = helper.writableDatabase
+
+        // Insert pre-migration records
+        db.execSQL("INSERT INTO users VALUES ('u1', '9876543210', 'Resident 1', 'res1@example.com', 'RESIDENT', 'c1', 'f1', 1, 1000)")
+        db.execSQL("INSERT INTO communities VALUES ('c1', 'Orchard Heights', 'Greenfield', 'Bengaluru')")
+        db.execSQL("INSERT INTO flats VALUES ('f1', 'c1', 'Block B', 'B-304', 3)")
+        db.execSQL("INSERT INTO notices VALUES ('n1', 'c1', 'Notice 1', 'Content 1', 1000, NULL)")
+        db.execSQL("INSERT INTO complaints VALUES ('comp_1', 'u1', 'c1', 'f1', 'Water', 'Balcony leak', 'SUBMITTED', 1000, NULL)")
+
+        // Execute MIGRATION_3_4
+        DatabaseModule.MIGRATION_3_4.migrate(db)
+
+        // Verify pre-migration data remains intact
+        val userCursor = db.query("SELECT * FROM users WHERE id = 'u1'")
+        assertTrue(userCursor.moveToFirst())
+        assertEquals("Resident 1", userCursor.getString(userCursor.getColumnIndexOrThrow("name")))
+        userCursor.close()
+
+        val commCursor = db.query("SELECT * FROM communities WHERE id = 'c1'")
+        assertTrue(commCursor.moveToFirst())
+        assertEquals("Orchard Heights", commCursor.getString(commCursor.getColumnIndexOrThrow("name")))
+        commCursor.close()
+
+        val flatCursor = db.query("SELECT * FROM flats WHERE id = 'f1'")
+        assertTrue(flatCursor.moveToFirst())
+        assertEquals("B-304", flatCursor.getString(flatCursor.getColumnIndexOrThrow("flatNumber")))
+        flatCursor.close()
+
+        val noticeCursor = db.query("SELECT * FROM notices WHERE id = 'n1'")
+        assertTrue(noticeCursor.moveToFirst())
+        assertEquals("Notice 1", noticeCursor.getString(noticeCursor.getColumnIndexOrThrow("title")))
+        noticeCursor.close()
+
+        val compCursor = db.query("SELECT * FROM complaints WHERE id = 'comp_1'")
+        assertTrue(compCursor.moveToFirst())
+        assertEquals("Water", compCursor.getString(compCursor.getColumnIndexOrThrow("category")))
+        compCursor.close()
+
+        // Verify visitors table exists and accepts records with null optional fields
+        db.execSQL(
+            """
+            INSERT INTO visitors VALUES (
+                'vis_1', 'u1', 'c1', 'f1', 'John Doe', '9888877777', 'Guest', 'KA-05-MJ-1234',
+                1700000000000, 'PRE_APPROVED', NULL, NULL, NULL, NULL, 1699999000000, NULL
+            )
+            """.trimIndent()
+        )
+
+        val visCursor = db.query("SELECT * FROM visitors WHERE id = 'vis_1'")
+        assertTrue(visCursor.moveToFirst())
+        assertEquals("John Doe", visCursor.getString(visCursor.getColumnIndexOrThrow("name")))
+        assertEquals("9888877777", visCursor.getString(visCursor.getColumnIndexOrThrow("phoneNumber")))
+        assertEquals("Guest", visCursor.getString(visCursor.getColumnIndexOrThrow("purpose")))
+        assertEquals("KA-05-MJ-1234", visCursor.getString(visCursor.getColumnIndexOrThrow("vehicleNumber")))
+        assertEquals("PRE_APPROVED", visCursor.getString(visCursor.getColumnIndexOrThrow("status")))
+        assertTrue(visCursor.isNull(visCursor.getColumnIndexOrThrow("photoUri")))
+        assertTrue(visCursor.isNull(visCursor.getColumnIndexOrThrow("checkInTime")))
+        assertTrue(visCursor.isNull(visCursor.getColumnIndexOrThrow("checkOutTime")))
+        assertTrue(visCursor.isNull(visCursor.getColumnIndexOrThrow("verifiedBySecurityId")))
+        assertTrue(visCursor.isNull(visCursor.getColumnIndexOrThrow("updatedAt")))
+        visCursor.close()
+
+        // Explicitly verify PRAGMA table_info to confirm column nullability
+        val pragmaCursor = db.query("PRAGMA table_info(visitors)")
+        var foundVerifiedBy = false
+        var foundCheckIn = false
+        var foundCheckOut = false
+        var foundUpdatedAt = false
+        var foundCreatedAt = false
+        while (pragmaCursor.moveToNext()) {
+            val colName = pragmaCursor.getString(pragmaCursor.getColumnIndexOrThrow("name"))
+            val notNull = pragmaCursor.getInt(pragmaCursor.getColumnIndexOrThrow("notnull"))
+            when (colName) {
+                "verifiedBySecurityId" -> {
+                    foundVerifiedBy = true
+                    assertEquals(0, notNull)
+                }
+                "checkInTime" -> {
+                    foundCheckIn = true
+                    assertEquals(0, notNull)
+                }
+                "checkOutTime" -> {
+                    foundCheckOut = true
+                    assertEquals(0, notNull)
+                }
+                "updatedAt" -> {
+                    foundUpdatedAt = true
+                    assertEquals(0, notNull)
+                }
+                "createdAt" -> {
+                    foundCreatedAt = true
+                    assertEquals(1, notNull)
+                }
+            }
+        }
+        pragmaCursor.close()
+        assertTrue(foundVerifiedBy)
+        assertTrue(foundCheckIn)
+        assertTrue(foundCheckOut)
+        assertTrue(foundUpdatedAt)
+        assertTrue(foundCreatedAt)
+
+        // Verify required indexes exist
+        val indexCursor = db.query("PRAGMA index_list(visitors)")
+        val indexNames = mutableSetOf<String>()
+        while (indexCursor.moveToNext()) {
+            indexNames.add(indexCursor.getString(indexCursor.getColumnIndexOrThrow("name")))
+        }
+        indexCursor.close()
+
+        assertTrue(indexNames.contains("index_visitors_residentId"))
+        assertTrue(indexNames.contains("index_visitors_communityId"))
+        assertTrue(indexNames.contains("index_visitors_flatId"))
+        assertTrue(indexNames.contains("index_visitors_status"))
+        assertTrue(indexNames.contains("index_visitors_communityId_status"))
+
+        db.close()
+        context.deleteDatabase(dbName)
+    }
 }

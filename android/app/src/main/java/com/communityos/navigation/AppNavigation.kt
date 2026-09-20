@@ -9,9 +9,9 @@ import androidx.navigation.navArgument
 import com.communityos.authentication.navigation.authGraph
 import com.communityos.home.navigation.homeGraph
 import com.communityos.admin.AdminDashboardScreen
-import com.communityos.security.SecurityDashboardScreen
-import com.communityos.visitors.VisitorDetailsScreen
 import com.communityos.clubs.ClubDetailsScreen
+import com.communityos.security.SecurityDashboardScreen
+import com.communityos.security.ui.SecurityVisitorDetailsScreen
 
 @Composable
 fun AppNavigation() {
@@ -54,17 +54,31 @@ fun AppNavigation() {
             AdminDashboardScreen()
         }
         composable(Screen.SecurityDashboard.route) {
-            SecurityDashboardScreen()
+            SecurityDashboardScreen(
+                onLogout = {
+                    navController.navigate(Screen.Onboarding.route) {
+                        popUpTo(Screen.SecurityDashboard.route) {
+                            inclusive = true
+                        }
+                        launchSingleTop = true
+                    }
+                },
+                onVisitorClick = { visitorId ->
+                    navController.navigate(Screen.SecurityVisitorDetails.createRoute(visitorId))
+                }
+            )
         }
 
-        // Feature details
+        // Security Visitor Details
         composable(
-            route = Screen.VisitorDetails.route,
+            route = Screen.SecurityVisitorDetails.route,
             arguments = listOf(navArgument("visitorId") { type = NavType.StringType })
-        ) { backStackEntry ->
-            val visitorId = backStackEntry.arguments?.getString("visitorId") ?: ""
-            VisitorDetailsScreen(visitorId = visitorId)
+        ) {
+            SecurityVisitorDetailsScreen(
+                onNavigateBack = { navController.popBackStack() }
+            )
         }
+
         composable(
             route = Screen.ClubDetails.route,
             arguments = listOf(navArgument("clubId") { type = NavType.StringType })

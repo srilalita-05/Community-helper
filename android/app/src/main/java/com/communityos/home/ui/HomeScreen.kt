@@ -30,7 +30,8 @@ fun HomeScreen(
     state: HomeState,
     onEvent: (HomeEvent) -> Unit,
     onNavigateToNotices: () -> Unit = {},
-    onNavigateToComplaints: () -> Unit = {}
+    onNavigateToComplaints: () -> Unit = {},
+    onNavigateToVisitors: () -> Unit = {}
 ) {
     val scrollState = rememberScrollState()
 
@@ -111,7 +112,9 @@ fun HomeScreen(
                         value = (state.summary?.activeVisitors ?: 0).toString(),
                         icon = Icons.Default.Person,
                         color = Color(0xFF009688), // Teal
-                        modifier = Modifier.weight(1f)
+                        modifier = Modifier
+                            .weight(1f)
+                            .clickable { onNavigateToVisitors() }
                     )
                     MetricCard(
                         title = "Pending Complaints",
@@ -287,6 +290,69 @@ fun HomeScreen(
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowForward,
                             contentDescription = "Open Complaints",
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                // Visitors Card
+                Card(
+                    onClick = onNavigateToVisitors,
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(20.dp),
+                    colors = CardDefaults.cardColors(
+                        containerColor = MaterialTheme.colorScheme.surface
+                    ),
+                    elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+                ) {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(20.dp),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            modifier = Modifier.weight(1f)
+                        ) {
+                            Box(
+                                modifier = Modifier
+                                    .size(44.dp)
+                                    .background(
+                                        color = Color(0xFFE0F2F1), // Light Teal
+                                        shape = RoundedCornerShape(12.dp)
+                                    ),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.Person,
+                                    contentDescription = "Visitors",
+                                    tint = Color(0xFF009688) // Teal
+                                )
+                            }
+                            Spacer(modifier = Modifier.width(16.dp))
+                            Column {
+                                Text(
+                                    text = "Visitors",
+                                    style = MaterialTheme.typography.titleMedium.copy(
+                                        fontWeight = FontWeight.Bold
+                                    ),
+                                    color = MaterialTheme.colorScheme.onSurface
+                                )
+                                Spacer(modifier = Modifier.height(2.dp))
+                                Text(
+                                    text = "Pre-approve & track visitor entry",
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                            }
+                        }
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Filled.ArrowForward,
+                            contentDescription = "Open Visitors",
                             tint = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                     }

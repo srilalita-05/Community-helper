@@ -9,11 +9,13 @@ import com.communityos.data.local.dao.ComplaintDao
 import com.communityos.data.local.dao.FlatDao
 import com.communityos.data.local.dao.NoticeDao
 import com.communityos.data.local.dao.UserDao
+import com.communityos.data.local.dao.VisitorDao
 import com.communityos.data.local.entity.CommunityEntity
 import com.communityos.data.local.entity.ComplaintEntity
 import com.communityos.data.local.entity.FlatEntity
 import com.communityos.data.local.entity.NoticeEntity
 import com.communityos.data.local.entity.UserEntity
+import com.communityos.data.local.entity.VisitorEntity
 
 @Database(
     entities = [
@@ -21,9 +23,10 @@ import com.communityos.data.local.entity.UserEntity
         CommunityEntity::class,
         FlatEntity::class,
         NoticeEntity::class,
-        ComplaintEntity::class
+        ComplaintEntity::class,
+        VisitorEntity::class
     ],
-    version = 3,
+    version = 4,
     exportSchema = false
 )
 @TypeConverters(RoomConverters::class)
@@ -34,6 +37,7 @@ abstract class CommunityDatabase : RoomDatabase() {
     abstract fun flatDao(): FlatDao
     abstract fun noticeDao(): NoticeDao
     abstract fun complaintDao(): ComplaintDao
+    abstract fun visitorDao(): VisitorDao
 
     companion object {
         const val DATABASE_NAME = "community_os_db"

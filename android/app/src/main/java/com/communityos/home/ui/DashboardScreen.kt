@@ -18,7 +18,8 @@ fun DashboardScreen(
     state: HomeState,
     onEvent: (HomeEvent) -> Unit,
     onNavigateToNotices: () -> Unit = {},
-    onNavigateToComplaints: () -> Unit = {}
+    onNavigateToComplaints: () -> Unit = {},
+    onNavigateToVisitors: () -> Unit = {}
 ) {
     var selectedItem by remember { mutableStateOf(0) }
     val items = listOf("Home", "Feed", "Events", "Marketplace", "Profile")
@@ -57,7 +58,8 @@ fun DashboardScreen(
                     state = state,
                     onEvent = onEvent,
                     onNavigateToNotices = onNavigateToNotices,
-                    onNavigateToComplaints = onNavigateToComplaints
+                    onNavigateToComplaints = onNavigateToComplaints,
+                    onNavigateToVisitors = onNavigateToVisitors
                 )
                 4 -> ProfileScreen(onLogout = { onEvent(HomeEvent.Logout) })
                 else -> {

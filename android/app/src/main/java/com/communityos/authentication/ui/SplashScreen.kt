@@ -19,6 +19,7 @@ import com.communityos.authentication.viewmodel.StartupDestination
 @Composable
 fun SplashScreen(
     onNavigateToHome: () -> Unit,
+    onNavigateToSecurity: () -> Unit = {},
     onNavigateToAuth: () -> Unit,
     viewModel: SplashViewModel = hiltViewModel()
 ) {
@@ -27,6 +28,7 @@ fun SplashScreen(
     LaunchedEffect(destination) {
         when (destination) {
             StartupDestination.HOME -> onNavigateToHome()
+            StartupDestination.SECURITY -> onNavigateToSecurity()
             StartupDestination.AUTH -> onNavigateToAuth()
             null -> { /* Resolving session from Room/DataStore */ }
         }

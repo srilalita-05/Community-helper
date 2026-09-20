@@ -24,6 +24,11 @@ fun NavGraphBuilder.authGraph(
                     popUpTo(Screen.Splash.route) { inclusive = true }
                 }
             },
+            onNavigateToSecurity = {
+                navController.navigate(Screen.SecurityDashboard.route) {
+                    popUpTo(Screen.Splash.route) { inclusive = true }
+                }
+            },
             onNavigateToAuth = {
                 navController.navigate(Screen.Onboarding.route) {
                     popUpTo(Screen.Splash.route) { inclusive = true }

@@ -35,6 +35,7 @@ class HomeRepositoryTest {
     private lateinit var userDao: UserDao
     private lateinit var communityDao: CommunityDao
     private lateinit var flatDao: FlatDao
+    private lateinit var visitorDao: com.communityos.data.local.dao.VisitorDao
     private lateinit var sessionManager: SessionManager
     private lateinit var homeRepository: HomeRepository
 
@@ -47,6 +48,7 @@ class HomeRepositoryTest {
         userDao = database.userDao()
         communityDao = database.communityDao()
         flatDao = database.flatDao()
+        visitorDao = database.visitorDao()
 
         val testFile = context.preferencesDataStoreFile("test_home_repo_${System.nanoTime()}")
         val testDataStore = PreferenceDataStoreFactory.create(
@@ -59,6 +61,7 @@ class HomeRepositoryTest {
             userDao = userDao,
             communityDao = communityDao,
             flatDao = flatDao,
+            visitorDao = visitorDao,
             sessionManager = sessionManager
         )
     }

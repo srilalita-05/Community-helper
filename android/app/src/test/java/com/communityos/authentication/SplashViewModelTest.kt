@@ -73,6 +73,23 @@ class SplashViewModelTest {
     }
 
     @Test
+    fun checkSession_withSecuritySession_setsDestinationSecurity() = runTest {
+        val fakeSecurityUser = AuthUser(
+            uid = "sec_123",
+            phoneNumber = "9876543212",
+            displayName = "Officer Guard",
+            role = UserRole.SECURITY
+        )
+        val repository = FakeAuthRepository(sessionResult = Result.success(fakeSecurityUser))
+        val useCase = RestoreSessionUseCase(repository)
+
+        val viewModel = SplashViewModel(useCase)
+        testDispatcher.scheduler.advanceUntilIdle()
+
+        assertEquals(StartupDestination.SECURITY, viewModel.destination.value)
+    }
+
+    @Test
     fun checkSession_withFailedRestoration_setsDestinationAuth() = runTest {
         val repository = FakeAuthRepository(sessionResult = Result.failure(IllegalStateException("Room error")))
         val useCase = RestoreSessionUseCase(repository)

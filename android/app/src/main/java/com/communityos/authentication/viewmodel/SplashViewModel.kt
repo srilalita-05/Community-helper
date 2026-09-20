@@ -12,6 +12,7 @@ import javax.inject.Inject
 
 enum class StartupDestination {
     HOME,
+    SECURITY,
     AUTH
 }
 
@@ -32,7 +33,11 @@ class SplashViewModel @Inject constructor(
             val result = restoreSessionUseCase()
             val user = result.getOrNull()
             if (user != null) {
-                _destination.value = StartupDestination.HOME
+                if (user.role == com.communityos.models.UserRole.SECURITY) {
+                    _destination.value = StartupDestination.SECURITY
+                } else {
+                    _destination.value = StartupDestination.HOME
+                }
             } else {
                 _destination.value = StartupDestination.AUTH
             }

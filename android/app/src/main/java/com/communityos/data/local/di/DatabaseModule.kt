@@ -10,6 +10,7 @@ import com.communityos.data.local.dao.ComplaintDao
 import com.communityos.data.local.dao.FlatDao
 import com.communityos.data.local.dao.NoticeDao
 import com.communityos.data.local.dao.UserDao
+import com.communityos.data.local.dao.VisitorDao
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -80,6 +81,59 @@ object DatabaseModule {
         }
     }
 
+    val MIGRATION_3_4 = object : Migration(3, 4) {
+        override fun migrate(db: SupportSQLiteDatabase) {
+            db.execSQL(
+                """
+                CREATE TABLE IF NOT EXISTS `visitors` (
+                    `id` TEXT NOT NULL,
+                    `residentId` TEXT NOT NULL,
+                    `communityId` TEXT NOT NULL,
+                    `flatId` TEXT NOT NULL,
+                    `name` TEXT NOT NULL,
+                    `phoneNumber` TEXT NOT NULL,
+                    `purpose` TEXT NOT NULL,
+                    `vehicleNumber` TEXT,
+                    `scheduledArrivalDate` INTEGER NOT NULL,
+                    `status` TEXT NOT NULL,
+                    `photoUri` TEXT,
+                    `checkInTime` INTEGER,
+                    `checkOutTime` INTEGER,
+                    `verifiedBySecurityId` TEXT,
+                    `createdAt` INTEGER NOT NULL,
+                    `updatedAt` INTEGER,
+                    PRIMARY KEY(`id`)
+                )
+                """.trimIndent()
+            )
+            db.execSQL(
+                """
+                CREATE INDEX IF NOT EXISTS `index_visitors_residentId` ON `visitors` (`residentId`)
+                """.trimIndent()
+            )
+            db.execSQL(
+                """
+                CREATE INDEX IF NOT EXISTS `index_visitors_communityId` ON `visitors` (`communityId`)
+                """.trimIndent()
+            )
+            db.execSQL(
+                """
+                CREATE INDEX IF NOT EXISTS `index_visitors_flatId` ON `visitors` (`flatId`)
+                """.trimIndent()
+            )
+            db.execSQL(
+                """
+                CREATE INDEX IF NOT EXISTS `index_visitors_status` ON `visitors` (`status`)
+                """.trimIndent()
+            )
+            db.execSQL(
+                """
+                CREATE INDEX IF NOT EXISTS `index_visitors_communityId_status` ON `visitors` (`communityId`, `status`)
+                """.trimIndent()
+            )
+        }
+    }
+
     @Provides
     @Singleton
     fun provideCommunityDatabase(
@@ -90,7 +144,7 @@ object DatabaseModule {
             CommunityDatabase::class.java,
             CommunityDatabase.DATABASE_NAME
         )
-            .addMigrations(MIGRATION_1_2, MIGRATION_2_3)
+            .addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4)
             .fallbackToDestructiveMigration()
             .build()
     }
@@ -118,5 +172,10 @@ object DatabaseModule {
     @Provides
     fun provideComplaintDao(database: CommunityDatabase): ComplaintDao {
         return database.complaintDao()
+    }
+
+    @Provides
+    fun provideVisitorDao(database: CommunityDatabase): VisitorDao {
+        return database.visitorDao()
     }
 }

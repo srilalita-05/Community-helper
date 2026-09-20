@@ -19,6 +19,10 @@ import com.communityos.navigation.Screen
 import com.communityos.notices.ui.NoticeDetailsScreen
 import com.communityos.notices.ui.NoticesListScreen
 
+import com.communityos.visitors.VisitorDetailsScreen
+import com.communityos.visitors.ui.CreateVisitorScreen
+import com.communityos.visitors.ui.ResidentVisitorsListScreen
+
 fun NavGraphBuilder.homeGraph(
     navController: NavHostController,
     onLogout: () -> Unit
@@ -43,6 +47,9 @@ fun NavGraphBuilder.homeGraph(
             },
             onNavigateToComplaints = {
                 navController.navigate(Screen.ComplaintsList.route)
+            },
+            onNavigateToVisitors = {
+                navController.navigate(Screen.VisitorsList.route)
             }
         )
     }
@@ -86,6 +93,32 @@ fun NavGraphBuilder.homeGraph(
         arguments = listOf(navArgument("complaintId") { type = NavType.StringType })
     ) {
         ComplaintDetailsScreen(
+            onNavigateBack = { navController.popBackStack() }
+        )
+    }
+
+    // Resident Visitors Flow
+    composable(Screen.VisitorsList.route) {
+        ResidentVisitorsListScreen(
+            onNavigateBack = { navController.popBackStack() },
+            onNavigateToCreate = { navController.navigate(Screen.CreateVisitor.route) },
+            onVisitorClick = { visitorId ->
+                navController.navigate(Screen.VisitorDetails.createRoute(visitorId))
+            }
+        )
+    }
+
+    composable(Screen.CreateVisitor.route) {
+        CreateVisitorScreen(
+            onNavigateBack = { navController.popBackStack() }
+        )
+    }
+
+    composable(
+        route = Screen.VisitorDetails.route,
+        arguments = listOf(navArgument("visitorId") { type = NavType.StringType })
+    ) {
+        VisitorDetailsScreen(
             onNavigateBack = { navController.popBackStack() }
         )
     }

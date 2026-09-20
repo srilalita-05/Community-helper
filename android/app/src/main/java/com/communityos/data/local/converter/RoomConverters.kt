@@ -25,4 +25,14 @@ class RoomConverters {
     fun toComplaintStatus(value: String?): ComplaintStatus {
         return ComplaintStatus.fromString(value)
     }
+
+    @TypeConverter
+    fun fromVisitorStatus(status: com.communityos.visitors.model.VisitorStatus): String {
+        return status.name
+    }
+
+    @TypeConverter
+    fun toVisitorStatus(value: String?): com.communityos.visitors.model.VisitorStatus {
+        return com.communityos.visitors.model.VisitorStatus.fromString(value)
+    }
 }
