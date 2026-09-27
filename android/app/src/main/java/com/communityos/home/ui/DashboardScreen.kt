@@ -11,6 +11,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.communityos.home.event.HomeEvent
 import com.communityos.home.state.HomeState
+import com.communityos.marketplace.ui.MarketplaceListScreen
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -19,7 +20,9 @@ fun DashboardScreen(
     onEvent: (HomeEvent) -> Unit,
     onNavigateToNotices: () -> Unit = {},
     onNavigateToComplaints: () -> Unit = {},
-    onNavigateToVisitors: () -> Unit = {}
+    onNavigateToVisitors: () -> Unit = {},
+    onNavigateToCreateListing: () -> Unit = {},
+    onNavigateToListingDetails: (String) -> Unit = {}
 ) {
     var selectedItem by remember { mutableStateOf(0) }
     val items = listOf("Home", "Feed", "Events", "Marketplace", "Profile")
@@ -59,11 +62,16 @@ fun DashboardScreen(
                     onEvent = onEvent,
                     onNavigateToNotices = onNavigateToNotices,
                     onNavigateToComplaints = onNavigateToComplaints,
-                    onNavigateToVisitors = onNavigateToVisitors
+                    onNavigateToVisitors = onNavigateToVisitors,
+                    onNavigateToMarketplace = { selectedItem = 3 }
+                )
+                3 -> MarketplaceListScreen(
+                    onNavigateToCreateListing = onNavigateToCreateListing,
+                    onNavigateToListingDetails = onNavigateToListingDetails
                 )
                 4 -> ProfileScreen(onLogout = { onEvent(HomeEvent.Logout) })
                 else -> {
-                    // Placeholders for Feed, Events, Marketplace
+                    // Placeholders for Feed, Events
                     Box(
                         modifier = Modifier
                             .fillMaxSize()

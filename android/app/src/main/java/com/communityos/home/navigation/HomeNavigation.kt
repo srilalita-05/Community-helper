@@ -22,6 +22,9 @@ import com.communityos.notices.ui.NoticesListScreen
 import com.communityos.visitors.VisitorDetailsScreen
 import com.communityos.visitors.ui.CreateVisitorScreen
 import com.communityos.visitors.ui.ResidentVisitorsListScreen
+import com.communityos.marketplace.ui.CreateEditListingScreen
+import com.communityos.marketplace.ui.ListingDetailScreen
+import com.communityos.marketplace.ui.MarketplaceListScreen
 
 fun NavGraphBuilder.homeGraph(
     navController: NavHostController,
@@ -50,6 +53,12 @@ fun NavGraphBuilder.homeGraph(
             },
             onNavigateToVisitors = {
                 navController.navigate(Screen.VisitorsList.route)
+            },
+            onNavigateToCreateListing = {
+                navController.navigate(Screen.CreateListing.route)
+            },
+            onNavigateToListingDetails = { listingId ->
+                navController.navigate(Screen.ListingDetails.createRoute(listingId))
             }
         )
     }
@@ -119,6 +128,43 @@ fun NavGraphBuilder.homeGraph(
         arguments = listOf(navArgument("visitorId") { type = NavType.StringType })
     ) {
         VisitorDetailsScreen(
+            onNavigateBack = { navController.popBackStack() }
+        )
+    }
+
+    // Resident Marketplace Flow
+    composable(Screen.MarketplaceList.route) {
+        MarketplaceListScreen(
+            onNavigateToCreateListing = { navController.navigate(Screen.CreateListing.route) },
+            onNavigateToListingDetails = { listingId ->
+                navController.navigate(Screen.ListingDetails.createRoute(listingId))
+            }
+        )
+    }
+
+    composable(
+        route = Screen.ListingDetails.route,
+        arguments = listOf(navArgument("listingId") { type = NavType.StringType })
+    ) {
+        ListingDetailScreen(
+            onNavigateBack = { navController.popBackStack() },
+            onNavigateToEditListing = { listingId ->
+                navController.navigate(Screen.EditListing.createRoute(listingId))
+            }
+        )
+    }
+
+    composable(Screen.CreateListing.route) {
+        CreateEditListingScreen(
+            onNavigateBack = { navController.popBackStack() }
+        )
+    }
+
+    composable(
+        route = Screen.EditListing.route,
+        arguments = listOf(navArgument("listingId") { type = NavType.StringType })
+    ) {
+        CreateEditListingScreen(
             onNavigateBack = { navController.popBackStack() }
         )
     }

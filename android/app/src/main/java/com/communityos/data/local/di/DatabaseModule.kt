@@ -8,6 +8,7 @@ import com.communityos.data.local.CommunityDatabase
 import com.communityos.data.local.dao.CommunityDao
 import com.communityos.data.local.dao.ComplaintDao
 import com.communityos.data.local.dao.FlatDao
+import com.communityos.data.local.dao.MarketplaceDao
 import com.communityos.data.local.dao.NoticeDao
 import com.communityos.data.local.dao.UserDao
 import com.communityos.data.local.dao.VisitorDao
@@ -134,6 +135,52 @@ object DatabaseModule {
         }
     }
 
+    val MIGRATION_4_5 = object : Migration(4, 5) {
+        override fun migrate(db: SupportSQLiteDatabase) {
+            db.execSQL(
+                """
+                CREATE TABLE IF NOT EXISTS `marketplace_listings` (
+                    `id` TEXT NOT NULL,
+                    `residentId` TEXT NOT NULL,
+                    `communityId` TEXT NOT NULL,
+                    `title` TEXT NOT NULL,
+                    `description` TEXT NOT NULL,
+                    `category` TEXT NOT NULL,
+                    `price` REAL NOT NULL,
+                    `contactPhone` TEXT NOT NULL,
+                    `status` TEXT NOT NULL,
+                    `imageUri` TEXT,
+                    `createdAt` INTEGER NOT NULL,
+                    `updatedAt` INTEGER,
+                    PRIMARY KEY(`id`),
+                    FOREIGN KEY(`residentId`) REFERENCES `users`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE,
+                    FOREIGN KEY(`communityId`) REFERENCES `communities`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE
+                )
+                """.trimIndent()
+            )
+            db.execSQL(
+                """
+                CREATE INDEX IF NOT EXISTS `index_marketplace_listings_residentId` ON `marketplace_listings` (`residentId`)
+                """.trimIndent()
+            )
+            db.execSQL(
+                """
+                CREATE INDEX IF NOT EXISTS `index_marketplace_listings_communityId` ON `marketplace_listings` (`communityId`)
+                """.trimIndent()
+            )
+            db.execSQL(
+                """
+                CREATE INDEX IF NOT EXISTS `index_marketplace_listings_communityId_status` ON `marketplace_listings` (`communityId`, `status`)
+                """.trimIndent()
+            )
+            db.execSQL(
+                """
+                CREATE INDEX IF NOT EXISTS `index_marketplace_listings_category` ON `marketplace_listings` (`category`)
+                """.trimIndent()
+            )
+        }
+    }
+
     @Provides
     @Singleton
     fun provideCommunityDatabase(
@@ -144,7 +191,7 @@ object DatabaseModule {
             CommunityDatabase::class.java,
             CommunityDatabase.DATABASE_NAME
         )
-            .addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4)
+            .addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5)
             .fallbackToDestructiveMigration()
             .build()
     }
@@ -177,5 +224,10 @@ object DatabaseModule {
     @Provides
     fun provideVisitorDao(database: CommunityDatabase): VisitorDao {
         return database.visitorDao()
+    }
+
+    @Provides
+    fun provideMarketplaceDao(database: CommunityDatabase): MarketplaceDao {
+        return database.marketplaceDao()
     }
 }

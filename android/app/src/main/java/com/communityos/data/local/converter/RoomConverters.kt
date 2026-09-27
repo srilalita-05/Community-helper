@@ -35,4 +35,24 @@ class RoomConverters {
     fun toVisitorStatus(value: String?): com.communityos.visitors.model.VisitorStatus {
         return com.communityos.visitors.model.VisitorStatus.fromString(value)
     }
+
+    @TypeConverter
+    fun fromMarketplaceCategory(category: com.communityos.marketplace.model.MarketplaceCategory): String {
+        return category.name
+    }
+
+    @TypeConverter
+    fun toMarketplaceCategory(value: String?): com.communityos.marketplace.model.MarketplaceCategory {
+        return com.communityos.marketplace.model.MarketplaceCategory.fromString(value ?: "")
+    }
+
+    @TypeConverter
+    fun fromListingStatus(status: com.communityos.marketplace.model.ListingStatus): String {
+        return status.name
+    }
+
+    @TypeConverter
+    fun toListingStatus(value: String?): com.communityos.marketplace.model.ListingStatus {
+        return com.communityos.marketplace.model.ListingStatus.fromString(value ?: "")
+    }
 }
