@@ -22,7 +22,8 @@ fun DashboardScreen(
     onNavigateToComplaints: () -> Unit = {},
     onNavigateToVisitors: () -> Unit = {},
     onNavigateToCreateListing: () -> Unit = {},
-    onNavigateToListingDetails: (String) -> Unit = {}
+    onNavigateToListingDetails: (String) -> Unit = {},
+    onNavigateToMaintenance: () -> Unit = {}
 ) {
     var selectedItem by remember { mutableStateOf(0) }
     val items = listOf("Home", "Feed", "Events", "Marketplace", "Profile")
@@ -63,7 +64,8 @@ fun DashboardScreen(
                     onNavigateToNotices = onNavigateToNotices,
                     onNavigateToComplaints = onNavigateToComplaints,
                     onNavigateToVisitors = onNavigateToVisitors,
-                    onNavigateToMarketplace = { selectedItem = 3 }
+                    onNavigateToMarketplace = { selectedItem = 3 },
+                    onNavigateToMaintenance = onNavigateToMaintenance
                 )
                 3 -> MarketplaceListScreen(
                     onNavigateToCreateListing = onNavigateToCreateListing,

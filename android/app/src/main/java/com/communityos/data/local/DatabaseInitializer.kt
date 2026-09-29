@@ -27,7 +27,8 @@ class DatabaseInitializer @Inject constructor(
     @ApplicationContext private val context: Context,
     private val communityDao: CommunityDao,
     private val flatDao: FlatDao,
-    private val noticeDao: NoticeDao
+    private val noticeDao: NoticeDao,
+    private val maintenanceDao: com.communityos.data.local.dao.MaintenanceDao
 ) {
 
     suspend fun seedDemoDataIfEmpty() = withContext(Dispatchers.IO) {
@@ -58,6 +59,80 @@ class DatabaseInitializer @Inject constructor(
         }
         if (noticeJsonString != null) {
             seedNoticesFromJson(noticeJsonString)
+        }
+
+        seedMaintenanceDataIfEmpty()
+    }
+
+    suspend fun seedMaintenanceDataIfEmpty() = withContext(Dispatchers.IO) {
+        if (maintenanceDao.getBillCount() == 0) {
+            val now = System.currentTimeMillis()
+            val bills = listOf(
+                com.communityos.data.local.entity.MaintenanceBillEntity(
+                    id = "bill_b304_current",
+                    flatId = "flat_b304",
+                    communityId = "community_orchard_heights",
+                    title = "Monthly Maintenance — October 2026",
+                    period = "October 2026",
+                    amount = 2500.00,
+                    dueDate = now + (14L * 24 * 60 * 60 * 1000), // Due in 14 days
+                    status = com.communityos.maintenance.model.BillStatus.UNPAID,
+                    createdAt = now - (5L * 24 * 60 * 60 * 1000),
+                    updatedAt = null
+                ),
+                com.communityos.data.local.entity.MaintenanceBillEntity(
+                    id = "bill_b304_overdue",
+                    flatId = "flat_b304",
+                    communityId = "community_orchard_heights",
+                    title = "Clubhouse & Gym Levy — September 2026",
+                    period = "September 2026",
+                    amount = 1200.00,
+                    dueDate = now - (10L * 24 * 60 * 60 * 1000), // Overdue by 10 days
+                    status = com.communityos.maintenance.model.BillStatus.OVERDUE,
+                    createdAt = now - (35L * 24 * 60 * 60 * 1000),
+                    updatedAt = null
+                ),
+                com.communityos.data.local.entity.MaintenanceBillEntity(
+                    id = "bill_b304_paid_aug",
+                    flatId = "flat_b304",
+                    communityId = "community_orchard_heights",
+                    title = "Monthly Maintenance — August 2026",
+                    period = "August 2026",
+                    amount = 2500.00,
+                    dueDate = now - (45L * 24 * 60 * 60 * 1000),
+                    status = com.communityos.maintenance.model.BillStatus.PAID,
+                    createdAt = now - (65L * 24 * 60 * 60 * 1000),
+                    updatedAt = now - (48L * 24 * 60 * 60 * 1000)
+                ),
+                com.communityos.data.local.entity.MaintenanceBillEntity(
+                    id = "bill_a101_current",
+                    flatId = "flat_a101",
+                    communityId = "community_orchard_heights",
+                    title = "Monthly Maintenance — October 2026",
+                    period = "October 2026",
+                    amount = 2200.00,
+                    dueDate = now + (14L * 24 * 60 * 60 * 1000),
+                    status = com.communityos.maintenance.model.BillStatus.UNPAID,
+                    createdAt = now - (5L * 24 * 60 * 60 * 1000),
+                    updatedAt = null
+                )
+            )
+
+            val payments = listOf(
+                com.communityos.data.local.entity.MaintenancePaymentEntity(
+                    id = "pay_b304_aug_001",
+                    billId = "bill_b304_paid_aug",
+                    flatId = "flat_b304",
+                    residentId = "user_resident_1",
+                    amountPaid = 2500.00,
+                    paymentMethod = com.communityos.maintenance.model.PaymentMethod.UPI_SIMULATED,
+                    transactionRef = "SIM_TXN_AUG_2026_98214",
+                    paymentDate = now - (48L * 24 * 60 * 60 * 1000)
+                )
+            )
+
+            maintenanceDao.insertBills(bills)
+            maintenanceDao.insertPayments(payments)
         }
     }
 

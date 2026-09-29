@@ -181,6 +181,79 @@ object DatabaseModule {
         }
     }
 
+    val MIGRATION_5_6 = object : Migration(5, 6) {
+        override fun migrate(db: SupportSQLiteDatabase) {
+            db.execSQL(
+                """
+                CREATE TABLE IF NOT EXISTS `maintenance_bills` (
+                    `id` TEXT NOT NULL,
+                    `flatId` TEXT NOT NULL,
+                    `communityId` TEXT NOT NULL,
+                    `title` TEXT NOT NULL,
+                    `period` TEXT NOT NULL,
+                    `amount` REAL NOT NULL,
+                    `dueDate` INTEGER NOT NULL,
+                    `status` TEXT NOT NULL,
+                    `createdAt` INTEGER NOT NULL,
+                    `updatedAt` INTEGER,
+                    PRIMARY KEY(`id`)
+                )
+                """.trimIndent()
+            )
+            db.execSQL(
+                """
+                CREATE INDEX IF NOT EXISTS `index_maintenance_bills_flatId` ON `maintenance_bills` (`flatId`)
+                """.trimIndent()
+            )
+            db.execSQL(
+                """
+                CREATE INDEX IF NOT EXISTS `index_maintenance_bills_communityId` ON `maintenance_bills` (`communityId`)
+                """.trimIndent()
+            )
+            db.execSQL(
+                """
+                CREATE INDEX IF NOT EXISTS `index_maintenance_bills_status` ON `maintenance_bills` (`status`)
+                """.trimIndent()
+            )
+            db.execSQL(
+                """
+                CREATE INDEX IF NOT EXISTS `index_maintenance_bills_flatId_status` ON `maintenance_bills` (`flatId`, `status`)
+                """.trimIndent()
+            )
+
+            db.execSQL(
+                """
+                CREATE TABLE IF NOT EXISTS `maintenance_payments` (
+                    `id` TEXT NOT NULL,
+                    `billId` TEXT NOT NULL,
+                    `flatId` TEXT NOT NULL,
+                    `residentId` TEXT NOT NULL,
+                    `amountPaid` REAL NOT NULL,
+                    `paymentMethod` TEXT NOT NULL,
+                    `transactionRef` TEXT NOT NULL,
+                    `paymentDate` INTEGER NOT NULL,
+                    PRIMARY KEY(`id`)
+                )
+                """.trimIndent()
+            )
+            db.execSQL(
+                """
+                CREATE INDEX IF NOT EXISTS `index_maintenance_payments_billId` ON `maintenance_payments` (`billId`)
+                """.trimIndent()
+            )
+            db.execSQL(
+                """
+                CREATE INDEX IF NOT EXISTS `index_maintenance_payments_flatId` ON `maintenance_payments` (`flatId`)
+                """.trimIndent()
+            )
+            db.execSQL(
+                """
+                CREATE INDEX IF NOT EXISTS `index_maintenance_payments_residentId` ON `maintenance_payments` (`residentId`)
+                """.trimIndent()
+            )
+        }
+    }
+
     @Provides
     @Singleton
     fun provideCommunityDatabase(
@@ -191,7 +264,7 @@ object DatabaseModule {
             CommunityDatabase::class.java,
             CommunityDatabase.DATABASE_NAME
         )
-            .addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5)
+            .addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5, MIGRATION_5_6)
             .fallbackToDestructiveMigration()
             .build()
     }
@@ -229,5 +302,10 @@ object DatabaseModule {
     @Provides
     fun provideMarketplaceDao(database: CommunityDatabase): MarketplaceDao {
         return database.marketplaceDao()
+    }
+
+    @Provides
+    fun provideMaintenanceDao(database: CommunityDatabase): com.communityos.data.local.dao.MaintenanceDao {
+        return database.maintenanceDao()
     }
 }

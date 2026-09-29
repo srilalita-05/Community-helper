@@ -25,6 +25,7 @@ class DatabaseInitializerTest {
     private lateinit var flatDao: FlatDao
     private lateinit var userDao: UserDao
     private lateinit var noticeDao: com.communityos.data.local.dao.NoticeDao
+    private lateinit var maintenanceDao: com.communityos.data.local.dao.MaintenanceDao
     private lateinit var context: Context
     private lateinit var initializer: DatabaseInitializer
 
@@ -38,7 +39,8 @@ class DatabaseInitializerTest {
         flatDao = database.flatDao()
         userDao = database.userDao()
         noticeDao = database.noticeDao()
-        initializer = DatabaseInitializer(context, communityDao, flatDao, noticeDao)
+        maintenanceDao = database.maintenanceDao()
+        initializer = DatabaseInitializer(context, communityDao, flatDao, noticeDao, maintenanceDao)
     }
 
     @After
@@ -274,5 +276,29 @@ class DatabaseInitializerTest {
         assertNotNull(retrievedUser)
         assertEquals("Persistence Test", retrievedUser?.name)
         assertEquals("community_orchard_heights", retrievedUser?.communityId)
+    }
+
+    @Test
+    fun seedMaintenanceDataIfEmpty_populatesBillsAndPaymentsIdempotently() = runTest {
+        assertEquals(0, maintenanceDao.getBillCount())
+
+        initializer.seedDemoDataIfEmpty()
+
+        val billCount = maintenanceDao.getBillCount()
+        assertTrue("Expected maintenance bills to be seeded", billCount >= 3)
+
+        val b304Bills = maintenanceDao.getBillsForFlat("flat_b304")
+        assertTrue(b304Bills.any { it.status == com.communityos.maintenance.model.BillStatus.UNPAID })
+        assertTrue(b304Bills.any { it.status == com.communityos.maintenance.model.BillStatus.OVERDUE })
+        assertTrue(b304Bills.any { it.status == com.communityos.maintenance.model.BillStatus.PAID })
+
+        val b304Payments = maintenanceDao.getPaymentsForFlat("flat_b304")
+        assertEquals(1, b304Payments.size)
+        assertEquals("bill_b304_paid_aug", b304Payments.first().billId)
+
+        // Verify idempotency on second run
+        initializer.seedDemoDataIfEmpty()
+        assertEquals(billCount, maintenanceDao.getBillCount())
+        assertEquals(1, maintenanceDao.getPaymentsForFlat("flat_b304").size)
     }
 }

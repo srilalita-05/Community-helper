@@ -33,7 +33,8 @@ fun HomeScreen(
     onNavigateToNotices: () -> Unit = {},
     onNavigateToComplaints: () -> Unit = {},
     onNavigateToVisitors: () -> Unit = {},
-    onNavigateToMarketplace: () -> Unit = {}
+    onNavigateToMarketplace: () -> Unit = {},
+    onNavigateToMaintenance: () -> Unit = {}
 ) {
     val scrollState = rememberScrollState()
 
@@ -133,6 +134,7 @@ fun HomeScreen(
 
                 // Outstanding Dues card
                 Card(
+                    onClick = onNavigateToMaintenance,
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(20.dp),
                     colors = CardDefaults.cardColors(
@@ -155,7 +157,7 @@ fun HomeScreen(
                             )
                             Spacer(modifier = Modifier.height(4.dp))
                             Text(
-                                text = "$${state.summary?.outstandingDues ?: 0.00}",
+                                text = "₹${String.format(java.util.Locale.getDefault(), "%,.2f", state.summary?.outstandingDues ?: 0.0)}",
                                 style = MaterialTheme.typography.headlineLarge.copy(
                                     fontWeight = FontWeight.Bold,
                                     fontSize = 24.sp
@@ -163,10 +165,10 @@ fun HomeScreen(
                             )
                         }
                         Button(
-                            onClick = { /* Navigate to Payment in Future Phases */ },
+                            onClick = onNavigateToMaintenance,
                             shape = RoundedCornerShape(12.dp)
                         ) {
-                            Text("Pay Now")
+                            Text(if ((state.summary?.outstandingDues ?: 0.0) > 0.0) "Pay Now" else "View Dues")
                         }
                     }
                 }

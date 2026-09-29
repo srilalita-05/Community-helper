@@ -36,6 +36,7 @@ class HomeRepositoryTest {
     private lateinit var communityDao: CommunityDao
     private lateinit var flatDao: FlatDao
     private lateinit var visitorDao: com.communityos.data.local.dao.VisitorDao
+    private lateinit var maintenanceDao: com.communityos.data.local.dao.MaintenanceDao
     private lateinit var sessionManager: SessionManager
     private lateinit var homeRepository: HomeRepository
 
@@ -49,6 +50,7 @@ class HomeRepositoryTest {
         communityDao = database.communityDao()
         flatDao = database.flatDao()
         visitorDao = database.visitorDao()
+        maintenanceDao = database.maintenanceDao()
 
         val testFile = context.preferencesDataStoreFile("test_home_repo_${System.nanoTime()}")
         val testDataStore = PreferenceDataStoreFactory.create(
@@ -62,6 +64,7 @@ class HomeRepositoryTest {
             communityDao = communityDao,
             flatDao = flatDao,
             visitorDao = visitorDao,
+            maintenanceDao = maintenanceDao,
             sessionManager = sessionManager
         )
     }
@@ -150,5 +153,100 @@ class HomeRepositoryTest {
         assertEquals("Welcome Home", summary?.communityName)
         assertEquals("", summary?.flatNo)
         assertEquals("", summary?.blockNo)
+    }
+
+    @Test
+    fun getDashboardSummary_returnsDynamicMaintenanceDuesFromRoom() = runTest {
+        val community = CommunityEntity(
+            id = "comm_orchard",
+            name = "Orchard Heights Apartments",
+            address = "42 Greenfield Boulevard",
+            city = "Bengaluru",
+            totalBlocks = 4
+        )
+        communityDao.insertCommunity(community)
+
+        val flat = FlatEntity(
+            id = "flat_b304",
+            communityId = "comm_orchard",
+            block = "Block B",
+            flatNumber = "B-304",
+            floor = 3
+        )
+        val otherFlat = FlatEntity(
+            id = "flat_a101",
+            communityId = "comm_orchard",
+            block = "Block A",
+            flatNumber = "A-101",
+            floor = 1
+        )
+        flatDao.insertFlat(flat)
+        flatDao.insertFlat(otherFlat)
+
+        val user = UserEntity(
+            id = "user_resident_1",
+            phoneNumber = "9876543210",
+            name = "David Miller",
+            role = UserRole.RESIDENT,
+            communityId = "comm_orchard",
+            flatId = "flat_b304"
+        )
+        userDao.insertUser(user)
+        sessionManager.saveSession("user_resident_1", UserRole.RESIDENT)
+
+        val now = System.currentTimeMillis()
+        val bills = listOf(
+            com.communityos.data.local.entity.MaintenanceBillEntity(
+                id = "b1",
+                flatId = "flat_b304",
+                communityId = "comm_orchard",
+                title = "Maintenance",
+                period = "October",
+                amount = 2500.0,
+                dueDate = now + 100000,
+                status = com.communityos.maintenance.model.BillStatus.UNPAID,
+                createdAt = now
+            ),
+            com.communityos.data.local.entity.MaintenanceBillEntity(
+                id = "b2",
+                flatId = "flat_b304",
+                communityId = "comm_orchard",
+                title = "Levy",
+                period = "September",
+                amount = 1200.0,
+                dueDate = now - 100000,
+                status = com.communityos.maintenance.model.BillStatus.OVERDUE,
+                createdAt = now
+            ),
+            com.communityos.data.local.entity.MaintenanceBillEntity(
+                id = "b3",
+                flatId = "flat_b304",
+                communityId = "comm_orchard",
+                title = "August Maintenance",
+                period = "August",
+                amount = 800.0,
+                dueDate = now - 200000,
+                status = com.communityos.maintenance.model.BillStatus.PAID,
+                createdAt = now
+            ),
+            com.communityos.data.local.entity.MaintenanceBillEntity(
+                id = "b_other",
+                flatId = "flat_a101",
+                communityId = "comm_orchard",
+                title = "Other Flat Maintenance",
+                period = "October",
+                amount = 9999.0,
+                dueDate = now + 100000,
+                status = com.communityos.maintenance.model.BillStatus.UNPAID,
+                createdAt = now
+            )
+        )
+        maintenanceDao.insertBills(bills)
+
+        val result = homeRepository.getDashboardSummary()
+        assertTrue(result.isSuccess)
+        val summary = result.getOrNull()
+        assertNotNull(summary)
+        assertEquals(3700.0, summary?.outstandingDues ?: 0.0, 0.001)
     }
 }

@@ -2,6 +2,7 @@ package com.communityos.home.repository
 
 import com.communityos.data.local.dao.CommunityDao
 import com.communityos.data.local.dao.FlatDao
+import com.communityos.data.local.dao.MaintenanceDao
 import com.communityos.data.local.dao.UserDao
 import com.communityos.data.local.dao.VisitorDao
 import com.communityos.data.local.session.SessionManager
@@ -16,6 +17,7 @@ class HomeRepositoryImpl @Inject constructor(
     private val communityDao: CommunityDao,
     private val flatDao: FlatDao,
     private val visitorDao: VisitorDao,
+    private val maintenanceDao: MaintenanceDao,
     private val sessionManager: SessionManager
 ) : HomeRepository {
 
@@ -39,11 +41,14 @@ class HomeRepositoryImpl @Inject constructor(
         // 5. Query active visitors count for authenticated resident from Room
         val activeVisitorsCount = visitorDao.countActiveVisitorsForResident(user.id)
 
-        // 6. Construct DashboardSummary using persisted data and safe fallbacks
+        // 6. Query real dynamic outstanding maintenance dues from Room
+        val realOutstandingDues = user.flatId?.let { maintenanceDao.getUnpaidTotalForFlat(it) } ?: 0.0
+
+        // 7. Construct DashboardSummary using persisted data and safe fallbacks
         val summary = DashboardSummary(
             activeVisitors = activeVisitorsCount,
             pendingComplaints = 1,
-            outstandingDues = 120.50,
+            outstandingDues = realOutstandingDues,
             communityName = community?.name ?: "Welcome Home",
             blockNo = flat?.block ?: "",
             flatNo = flat?.flatNumber ?: ""

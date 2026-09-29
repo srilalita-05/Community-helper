@@ -55,4 +55,24 @@ class RoomConverters {
     fun toListingStatus(value: String?): com.communityos.marketplace.model.ListingStatus {
         return com.communityos.marketplace.model.ListingStatus.fromString(value ?: "")
     }
+
+    @TypeConverter
+    fun fromBillStatus(status: com.communityos.maintenance.model.BillStatus): String {
+        return status.name
+    }
+
+    @TypeConverter
+    fun toBillStatus(value: String?): com.communityos.maintenance.model.BillStatus {
+        return com.communityos.maintenance.model.BillStatus.fromString(value ?: "")
+    }
+
+    @TypeConverter
+    fun fromPaymentMethod(method: com.communityos.maintenance.model.PaymentMethod): String {
+        return method.name
+    }
+
+    @TypeConverter
+    fun toPaymentMethod(value: String?): com.communityos.maintenance.model.PaymentMethod {
+        return com.communityos.maintenance.model.PaymentMethod.fromString(value ?: "")
+    }
 }

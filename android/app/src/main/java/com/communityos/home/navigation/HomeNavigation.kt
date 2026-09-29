@@ -59,6 +59,9 @@ fun NavGraphBuilder.homeGraph(
             },
             onNavigateToListingDetails = { listingId ->
                 navController.navigate(Screen.ListingDetails.createRoute(listingId))
+            },
+            onNavigateToMaintenance = {
+                navController.navigate(Screen.Maintenance.route)
             }
         )
     }
@@ -166,6 +169,43 @@ fun NavGraphBuilder.homeGraph(
     ) {
         CreateEditListingScreen(
             onNavigateBack = { navController.popBackStack() }
+        )
+    }
+
+    // Resident Maintenance Flow
+    composable(Screen.Maintenance.route) {
+        com.communityos.maintenance.ui.MaintenanceDashboardScreen(
+            onNavigateBack = { navController.popBackStack() },
+            onNavigateToBillDetails = { billId ->
+                navController.navigate(Screen.BillDetails.createRoute(billId))
+            },
+            onNavigateToPayment = { billId ->
+                navController.navigate(Screen.PaymentConfirmation.createRoute(billId))
+            }
+        )
+    }
+
+    composable(
+        route = Screen.BillDetails.route,
+        arguments = listOf(navArgument("billId") { type = NavType.StringType })
+    ) {
+        com.communityos.maintenance.ui.BillDetailsScreen(
+            onNavigateBack = { navController.popBackStack() },
+            onNavigateToPayment = { billId ->
+                navController.navigate(Screen.PaymentConfirmation.createRoute(billId))
+            }
+        )
+    }
+
+    composable(
+        route = Screen.PaymentConfirmation.route,
+        arguments = listOf(navArgument("billId") { type = NavType.StringType })
+    ) {
+        com.communityos.maintenance.ui.PaymentConfirmationScreen(
+            onNavigateBack = { navController.popBackStack() },
+            onPaymentCompleted = {
+                navController.popBackStack(Screen.Maintenance.route, inclusive = false)
+            }
         )
     }
 }
